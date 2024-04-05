@@ -4,17 +4,20 @@
 #define ENABLE_SERIAL
 #define ENABLE_SERIAL1
 #define ENABLE_SERIAL2
-#define ENABLE_SERIAL8
+//#define ENABLE_SERIAL8
 
 #ifdef ENABLE_SERIAL1
-HardwareSerial Serial1(PA10, PA9);
+// RX TX
+//HardwareSerial Serial1(PA10, PA9);
 #endif
 
 #ifdef ENABLE_SERIAL2
-HardwareSerial Serial2(PD6, PD5); // TO DCO
+// RX TX
+HardwareSerial Serial2(PA3, PA2); // TO DCO
 #endif
 
 #ifdef ENABLE_SERIAL8
+// RX TX
 HardwareSerial Serial8(PE0, PE1);
 #endif
 
@@ -35,6 +38,9 @@ bool serialSendADSR3toDCOFlag = false;
 bool serialSendADSR3ToOscSelectFlag = false;
 bool serialSendVoiceModeFlag = false;
 bool serialSendUnisonDetuneFlag = false;
+bool serialSendPWMPotsControlManualFlag = false;
+bool serialSendPWFlag = false;
+bool serialSendLFO2ToPWMFlag = false;
 
 #endif
 

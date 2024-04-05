@@ -12,11 +12,11 @@ void init_ADSR() {
     ADSRVoices[i].adsr2_voice.setRelease(ADSR2_release);
     ADSRVoices[i].adsr2_voice.setResetAttack(VCFADSRRestart);
 
-    ADSRVoices[i].adsr3_voice.setAttack(ADSR3_attack);    // initialize attack
-    ADSRVoices[i].adsr3_voice.setDecay(ADSR3_decay);      // initialize decay
-    ADSRVoices[i].adsr3_voice.setSustain(ADSR3_sustain);  // initialize sustain
-    ADSRVoices[i].adsr3_voice.setRelease(ADSR3_release);
-    ADSRVoices[i].adsr3_voice.setResetAttack(true);
+    // ADSRVoices[i].adsr3_voice.setAttack(ADSR3_attack);    // initialize attack
+    // ADSRVoices[i].adsr3_voice.setDecay(ADSR3_decay);      // initialize decay
+    // ADSRVoices[i].adsr3_voice.setSustain(ADSR3_sustain);  // initialize sustain
+    // ADSRVoices[i].adsr3_voice.setRelease(ADSR3_release);
+    // ADSRVoices[i].adsr3_voice.setResetAttack(true);
   }
 }
 
@@ -26,7 +26,7 @@ void ADSR_update() {
     if (noteEnd[i] == 1) {
       ADSRVoices[i].adsr1_voice.noteOff(tADSR - 1);
       ADSRVoices[i].adsr2_voice.noteOff(tADSR - 1);
-      ADSRVoices[i].adsr3_voice.noteOff(tADSR - 1);
+      // ADSRVoices[i].adsr3_voice.noteOff(tADSR - 1);
     } else if (noteStart[i] == 1) {
       ADSRVoices[i].adsr1_voice.noteOff(tADSR - 1);
       ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack * 1000);
@@ -40,16 +40,16 @@ void ADSR_update() {
       ADSRVoices[i].adsr2_voice.setRelease(ADSR2_release * 1000);
       ADSRVoices[i].adsr2_voice.noteOn(tADSR);
 
-      ADSRVoices[i].adsr3_voice.noteOff(tADSR - 1);
-      ADSRVoices[i].adsr3_voice.setAttack(ADSR3_attack * 1000);
-      ADSRVoices[i].adsr3_voice.setDecay(ADSR3_decay * 1000);
-      ADSRVoices[i].adsr3_voice.setRelease(ADSR3_release * 1000);
-      ADSRVoices[i].adsr3_voice.noteOn(tADSR);
+      // ADSRVoices[i].adsr3_voice.noteOff(tADSR - 1);
+      // ADSRVoices[i].adsr3_voice.setAttack(ADSR3_attack * 1000);
+      // ADSRVoices[i].adsr3_voice.setDecay(ADSR3_decay * 1000);
+      // ADSRVoices[i].adsr3_voice.setRelease(ADSR3_release * 1000);
+      // ADSRVoices[i].adsr3_voice.noteOn(tADSR);
     }
     tADSR = micros();
     ADSR1Level[i] = ADSRVoices[i].adsr1_voice.getWave(tADSR);
     ADSR2Level[i] = ADSRVoices[i].adsr2_voice.getWave(tADSR);
-    ADSR3Level[i] = ADSRVoices[i].adsr3_voice.getWave(tADSR);
+    // ADSR3Level[i] = ADSRVoices[i].adsr3_voice.getWave(tADSR);
   }
   ADSR_set_parameters();
 }
@@ -59,7 +59,7 @@ void ADSR_set_parameters() {
     for (int i = 0; i < NUM_VOICES; i++) {
       ADSRVoices[i].adsr1_voice.setSustain(ADSR1_sustain);
       ADSRVoices[i].adsr2_voice.setSustain(ADSR2_sustain);
-      ADSRVoices[i].adsr3_voice.setSustain(ADSR3_sustain);
+      // ADSRVoices[i].adsr3_voice.setSustain(ADSR3_sustain);
     }
     tADSR_params = tADSR;
   }

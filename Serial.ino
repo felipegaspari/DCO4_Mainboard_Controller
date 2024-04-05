@@ -143,6 +143,7 @@ void read_serial_1() {
           Serial1.readBytes(byteArray, 2);
 
           PW = word(byteArray[0], byteArray[1]);
+          serialSendPWFlag = true;
           break;
         }
       case 'n':
@@ -259,6 +260,7 @@ void read_serial_1() {
 void read_serial_2() {
 #ifdef ENABLE_SERIAL2
   while (Serial2.available() > 0) {
+    Serial.println("readSerial2");
     char commandCharacter = Serial2.read();  //we use characters (letters) for controlling the switch-case
     switch (commandCharacter) {
       case 'a':
@@ -306,6 +308,7 @@ void read_serial_2() {
 
           formula_update(2);
           formula_update(3);
+          Serial.println("PWM control manual");
 
           break;
         }
@@ -321,8 +324,9 @@ void read_serial_2() {
         {
           byte byteArray[2];
           Serial2.readBytes(byteArray, 2);
-
           PW = word(byteArray[0], byteArray[1]);
+          serialSendPWFlag = true;
+          Serial.println("PW Serial2");
           break;
         }
       case 'n':

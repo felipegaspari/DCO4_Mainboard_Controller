@@ -9,7 +9,7 @@ void init_LFO1() {
   LFO1_class.setAmpl(LFO1_CC);                     // set amplitude to maximum
   LFO1_class.setAmplOffset(0);                       // no offset to the amplitude
   LFO1_class.setMode(0);                             // set sync mode to mode0 -> no sync to BPM
-  LFO1_class.setMode0Freq(0.5);                       // set LFO to 30 Hz
+  LFO1_class.setMode0Freq(0.4);                       // set LFO to 30 Hz
 }
 
 
@@ -18,7 +18,7 @@ void init_LFO2() {
   LFO2_class.setAmpl(LFO2_CC);                     // set amplitude to maximum
   LFO2_class.setAmplOffset(0);                       // no offset to the amplitude
   LFO2_class.setMode(0);                             // set sync mode to mode0 -> no sync to BPM
-  LFO2_class.setMode0Freq(5);                       // set LFO to 30 Hz
+  LFO2_class.setMode0Freq(1);                       // set LFO to 30 Hz
 }
 
 void LFO1() {

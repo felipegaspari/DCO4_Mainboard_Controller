@@ -39,16 +39,16 @@
 #define TIM15_CH1_PIN PE_5
 #define TIM15_CH2_PIN PE_6
 
-HardwareTimer *htim1 = new HardwareTimer(TIM1);
+// HardwareTimer *htim1 = new HardwareTimer(TIM1);
 HardwareTimer *htim2 = new HardwareTimer(TIM2);
 HardwareTimer *htim3 = new HardwareTimer(TIM3);
 HardwareTimer *htim4 = new HardwareTimer(TIM4);
-HardwareTimer *htim5 = new HardwareTimer(TIM5);
-HardwareTimer *htim8 = new HardwareTimer(TIM8);
+// HardwareTimer *htim5 = new HardwareTimer(TIM5);
+// HardwareTimer *htim8 = new HardwareTimer(TIM8);
 
-HardwareTimer *htim12 = new HardwareTimer(TIM12);
-HardwareTimer *htim13 = new HardwareTimer(TIM13);
-HardwareTimer *htim15 = new HardwareTimer(TIM15);
+// HardwareTimer *htim12 = new HardwareTimer(TIM12);
+// HardwareTimer *htim13 = new HardwareTimer(TIM13);
+// HardwareTimer *htim15 = new HardwareTimer(TIM15);
 
 #endif
 /*

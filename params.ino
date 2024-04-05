@@ -134,6 +134,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
     case 45:
       LFO2toPWM = paramValue;
       formula_update(11);
+      serialSendLFO2ToPWMFlag = true;
       break;
     case 46:
       ADSR3toPWM = paramValue - 512;
@@ -151,6 +152,10 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       // = paramValue " ADSR2 Curve";
       break;
 
+    case 124:
+      PWMPotsControlManual = paramValue;
+      serialSendPWMPotsControlManualFlag = true;
+      break;
     case 126:
       ADSR3Enabled = paramValue;
       break;

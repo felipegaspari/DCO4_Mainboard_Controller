@@ -75,12 +75,12 @@ void setPWMOuts() {
 
   // /* ***************************           VCF PWM          *****************************/
   for (byte i = 0; i < NUM_VOICES; i++) {
-    if (VCFKeytrack > 0) {
-      VCFKeytrackPerVoice[i] = 1 + (VCFKeytrackModifier * map(note[i], 0, 150, -60, 90));
-    } else {
-      VCFKeytrackPerVoice[i] = 1;
-    }
-    VCF_PWM[i] = map((int)constrain(((((float)ADSR2Level[i] * ADSR2toVCF_formula) + ((float)LFO1Level * LFO1toVCF_formula) + /*((float)LFO2Level * LFO2toVCF_formula)*/ + CUTOFF)) * (1 - ((float)velocityToVCF * (127 - velocity[i]))) * (float)VCFKeytrackPerVoice[i], 0, 4095), 0, 4095, ADSR_2_CC - 50, 0);
+    // if (VCFKeytrack > 0) {
+    //   VCFKeytrackPerVoice[i] = 1 + (VCFKeytrackModifier * map(note[i], 0, 150, -60, 90));
+    // } else {
+    VCFKeytrackPerVoice[i] = 1;
+    // }
+    VCF_PWM[i] = map((int)constrain(((((float)ADSR2Level[i] * ADSR2toVCF_formula) + ((float)LFO2Level * LFO2toVCF_formula) + CUTOFF)) * (1 - ((float)velocityToVCF * (127 - 126))) * (float)VCFKeytrackPerVoice[i], 0, 4095), 0, 4095, ADSR_2_CC - 50, 0);
     // + RANDOMNESS1 + RANDOMNESS2
   }
 
@@ -115,67 +115,31 @@ void setPWMOuts() {
 
   //TEST MOTHERBOARD:
   //RESO/VCF
-  //htim1->setCaptureCompare(4, CUTOFF, TICK_COMPARE_FORMAT); //CUTOFF3
-  htim2->setCaptureCompare(3, RESONANCE, TICK_COMPARE_FORMAT);  //RESO3
-  //htim3->setCaptureCompare(1, CUTOFF, TICK_COMPARE_FORMAT); //CUTOFF2
-  htim3->setCaptureCompare(3, RESONANCE, TICK_COMPARE_FORMAT);  //RESO 2
-  //RESO/VCF
-  //htim5->setCaptureCompare(1, CUTOFF, TICK_COMPARE_FORMAT); //CUTOFF1
-  htim5->setCaptureCompare(3, RESONANCE, TICK_COMPARE_FORMAT);  //RESO1
-  //htim13->setCaptureCompare(1, CUTOFF, TICK_COMPARE_FORMAT);  //CUTOFF4
-  htim15->setCaptureCompare(2, RESONANCE, TICK_COMPARE_FORMAT);  //RESO4
 
   //VCA?
-  htim8->setCaptureCompare(1, VCA_PWM[0], TICK_COMPARE_FORMAT);
-  htim4->setCaptureCompare(3, VCA_PWM[1], TICK_COMPARE_FORMAT);
-  htim4->setCaptureCompare(1, VCA_PWM[2], TICK_COMPARE_FORMAT);
-  htim12->setCaptureCompare(1, VCA_PWM[3], TICK_COMPARE_FORMAT);
+
 
   //MIX_BOARD:
-  htim15->setCaptureCompare(1, SQR1Level, TICK_COMPARE_FORMAT);
-  htim5->setCaptureCompare(2, SubLevel, TICK_COMPARE_FORMAT);  //SUB2
-  htim5->setCaptureCompare(4, SubLevel, TICK_COMPARE_FORMAT);  //SUB1
-  htim3->setCaptureCompare(4, SQR1Level, TICK_COMPARE_FORMAT);
 
-  htim1->setCaptureCompare(1, SQR1Level, TICK_COMPARE_FORMAT);
-  htim1->setCaptureCompare(2, SQR1Level, TICK_COMPARE_FORMAT);
-  htim1->setCaptureCompare(3, SubLevel, TICK_COMPARE_FORMAT);  // SUB4
-  htim2->setCaptureCompare(4, SubLevel, TICK_COMPARE_FORMAT);  // SUB3
 
   // PWM SUELTOS
-  htim8->setCaptureCompare(2, PW, TICK_COMPARE_FORMAT);
-  htim4->setCaptureCompare(4, PW, TICK_COMPARE_FORMAT);
-  htim4->setCaptureCompare(2, PW, TICK_COMPARE_FORMAT);
-  htim12->setCaptureCompare(2, PW, TICK_COMPARE_FORMAT);
+
 
   // SQUARE PW
-  htim3->setCaptureCompare(2, PW_PWM[0], TICK_COMPARE_FORMAT);
-  htim2->setCaptureCompare(2, PW_PWM[0], TICK_COMPARE_FORMAT);
-  htim2->setCaptureCompare(1, PW_PWM[0], TICK_COMPARE_FORMAT);
-  htim8->setCaptureCompare(4, PW_PWM[0], TICK_COMPARE_FORMAT);
+
+  ;
+  // htim2->setCaptureCompare(2, VCF_PWM[0] /*map(LFO1Level,0,4095,0,3500)*/, TICK_COMPARE_FORMAT);
+  TIM2->CCR2 = VCF_PWM[0];
+  // htim3->setCaptureCompare(1, analogRead(PA0), TICK_COMPARE_FORMAT);
+  TIM3->CCR1 = RESONANCE;
+  //htim3->setCaptureCompare(2, PW, TICK_COMPARE_FORMAT);
+  TIM3->CCR2 = PW;
+  //htim4->setCaptureCompare(1, PW, TICK_COMPARE_FORMAT);
+  TIM4->CCR1 = PW;
 
 
-  // VCFKeytrackPerVoice[0] = 1;
-  // VCFKeytrackPerVoice[1] = 1;
-  //   VCFKeytrackPerVoice[2] = 1;
-  // VCFKeytrackPerVoice[3] = 1;
-  // VCF_PWM[0] = map((int)constrain(((((float)ADSR2Level[0] * ADSR2toVCF_formula) + CUTOFF)) * (1 - ((float)velocityToVCF * (127 - velocity[1]))) * (float)VCFKeytrackPerVoice[0], 0, 4095), 0, 4095, ADSR_2_CC - 50, 0);
-  // VCF_PWM[1] = map((int)constrain(((((float)ADSR2Level[1] * ADSR2toVCF_formula) + ((float)LFO1Level * LFO1toVCF_formula) + ((float)LFO2Level * LFO2toVCF_formula) + CUTOFF)) * (1 - ((float)velocityToVCF * (127 - velocity[1]))) * (float)VCFKeytrackPerVoice[1], 0, 4095), 0, 4095, ADSR_2_CC - 50, 0);
-  // VCF_PWM[2] = map((int)constrain(((((float)ADSR2Level[2] * ADSR2toVCF_formula) + ((float)LFO1Level * LFO1toVCF_formula) + ((float)LFO2Level * LFO2toVCF_formula) + CUTOFF)) * (1 - ((float)velocityToVCF * (127 - velocity[2]))) * (float)VCFKeytrackPerVoice[2], 0, 4095), 0, 4095, ADSR_2_CC - 50, 0);
-  // VCF_PWM[3] = map((int)constrain(((((float)ADSR2Level[3] * ADSR2toVCF_formula) + ((float)LFO1Level * LFO1toVCF_formula) + ((float)LFO2Level * LFO2toVCF_formula) + CUTOFF)) * (1 - ((float)velocityToVCF * (127 - velocity[3]))) * (float)VCFKeytrackPerVoice[3], 0, 4095), 0, 4095, ADSR_2_CC - 50, 0);
-
-  // VCF_PWM[0] = constrain(((((float)ADSR2Level[0] * ADSR2toVCF_formula) + CUTOFF) / 2), 0, 4095);
-  // VCF_PWM[1] = constrain(((((float)ADSR2Level[1] * ADSR2toVCF_formula) + CUTOFF) / 2), 0, 4095);
-  // VCF_PWM[2] = constrain(((((float)ADSR2Level[2] * ADSR2toVCF_formula) + CUTOFF) / 2), 0, 4095);
-  // VCF_PWM[3] = constrain(((((float)ADSR2Level[3] * ADSR2toVCF_formula) + CUTOFF) / 2), 0, 4095);
-
-  htim5->setCaptureCompare(1, VCF_PWM[0], TICK_COMPARE_FORMAT);   //CUTOFF x?
-  htim3->setCaptureCompare(1, VCF_PWM[1], TICK_COMPARE_FORMAT);   //CUTOFF 2
-  htim1->setCaptureCompare(4, VCF_PWM[2], TICK_COMPARE_FORMAT);   //CUTOFF 1?
-  htim13->setCaptureCompare(1, VCF_PWM[3], TICK_COMPARE_FORMAT);  //CUTOFF 1?
-
-  // htim5->setCaptureCompare(1, CUTOFF, TICK_COMPARE_FORMAT);   //CUTOFF x?
-  // htim3->setCaptureCompare(1, CUTOFF, TICK_COMPARE_FORMAT);   //CUTOFF 2
-  // htim1->setCaptureCompare(4, CUTOFF, TICK_COMPARE_FORMAT);   //CUTOFF 1?
-  // htim13->setCaptureCompare(1, CUTOFF, TICK_COMPARE_FORMAT);  //CUTOFF 1?
+  htim4->setCaptureCompare(2, CUTOFF, TICK_COMPARE_FORMAT);
+  htim4->setCaptureCompare(3, CUTOFF, TICK_COMPARE_FORMAT);
+  htim4->setCaptureCompare(4, RESONANCE, TICK_COMPARE_FORMAT);
+  htim2->setCaptureCompare(3, RESONANCE, TICK_COMPARE_FORMAT);
 }

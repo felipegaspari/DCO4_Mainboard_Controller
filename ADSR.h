@@ -66,24 +66,19 @@ int16_t ADSR3toSQR1;
 int16_t ADSR3toSQR2;
 int16_t ADSR3toSUB;
 
-adsr adsr1_voice_0(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2); adsr adsr2_voice_0(ADSR_2_DACSIZE, ADSR2_curve1, ADSR2_curve2); adsr adsr3_voice_0(ADSR_3_DACSIZE, ADSR3_curve1, ADSR3_curve2);
-adsr adsr1_voice_1(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2); adsr adsr2_voice_1(ADSR_2_DACSIZE, ADSR2_curve1, ADSR2_curve2); adsr adsr3_voice_1(ADSR_3_DACSIZE, ADSR3_curve1, ADSR3_curve2);
-adsr adsr1_voice_2(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2); adsr adsr2_voice_2(ADSR_2_DACSIZE, ADSR2_curve1, ADSR2_curve2); adsr adsr3_voice_2(ADSR_3_DACSIZE, ADSR3_curve1, ADSR3_curve2);
-adsr adsr1_voice_3(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2); adsr adsr2_voice_3(ADSR_2_DACSIZE, ADSR2_curve1, ADSR2_curve2); adsr adsr3_voice_3(ADSR_3_DACSIZE, ADSR3_curve1, ADSR3_curve2);
+adsr adsr1_voice_0(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2); adsr adsr2_voice_0(ADSR_2_DACSIZE, ADSR2_curve1, ADSR2_curve2); 
+
 
 //bool OSCPhaseLock = false;
 
 struct ADSRStruct {
 adsr adsr1_voice;
 adsr adsr2_voice;
-adsr adsr3_voice;
 };
 
 ADSRStruct ADSRVoices[] = {
-{adsr1_voice_0, adsr2_voice_0, adsr3_voice_0},
-{adsr1_voice_1, adsr2_voice_1, adsr3_voice_1},
-{adsr1_voice_2, adsr2_voice_2, adsr3_voice_2},
-{adsr1_voice_3, adsr2_voice_3, adsr3_voice_3},
+{adsr1_voice_0, adsr2_voice_0},
+
 // {adsr1_voice_4, adsr2_voice_4, adsr3_voice_4},
 // {adsr1_voice_5, adsr2_voice_5, adsr3_voice_5},
 };

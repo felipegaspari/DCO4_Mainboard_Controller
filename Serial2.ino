@@ -124,16 +124,39 @@ void sendSerial() {
   }
   if (serialSendVoiceModeFlag) {
     if (Serial2.availableForWrite() > 1) {
-      byte byteArray[2] = { (byte)'d', voiceMode};
+      byte byteArray[2] = { (byte)'d', voiceMode };
       Serial2.write(byteArray, 2);
       serialSendVoiceModeFlag = false;
     }
   }
-    if (serialSendUnisonDetuneFlag) {
+  if (serialSendUnisonDetuneFlag) {
     if (Serial2.availableForWrite() > 1) {
-      byte byteArray[2] = { (byte)'e', (uint8_t)unisonDetune};
+      byte byteArray[2] = { (byte)'e', (uint8_t)unisonDetune };
       Serial2.write(byteArray, 2);
       serialSendUnisonDetuneFlag = false;
+    }
+  }
+  if (serialSendPWFlag) {
+    if (Serial2.availableForWrite() > 1) {
+      byte *b = (byte *)&PW;
+      byte byteArray[3] = { (byte)'f', b[0], b[1] };
+      Serial2.write(byteArray, 3);
+      serialSendPWFlag = false;
+    }
+  }
+    if (serialSendLFO2ToPWMFlag) {
+    if (Serial2.availableForWrite() > 1) {
+      byte *b = (byte *)&LFO2toPWM;
+      byte byteArray[3] = { (byte)'h', b[0], b[1] };
+      Serial2.write(byteArray, 3);
+      serialSendLFO2ToPWMFlag = false;
+    }
+  }
+  if (serialSendPWMPotsControlManualFlag) {
+    if (Serial2.availableForWrite() > 1) {
+      byte byteArray[2] = { (byte)'j', (uint8_t)PWMPotsControlManual };
+      Serial2.write(byteArray, 2);
+      serialSendPWMPotsControlManualFlag = false;
     }
   }
 }
