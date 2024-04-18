@@ -42,6 +42,9 @@ bool serialSendPWMPotsControlManualFlag = false;
 bool serialSendPWFlag = false;
 bool serialSendLFO2ToPWMFlag = false;
 
+uint8_t serialSendParamByteToDCO[2];
+uint16_t serialSendParamToDCO[2];
+
 #endif
 
 /*

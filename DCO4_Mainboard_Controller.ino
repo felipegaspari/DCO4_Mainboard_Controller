@@ -9,7 +9,7 @@
 
 byte OSC1Interval = 24;
 byte OSC2Interval = 24;
-byte OSC2Detune = 127;
+uint16_t OSC2Detune = 255;
 
 float DETUNE1;
 float DETUNE2;
@@ -57,25 +57,25 @@ float RANDOMNESS2 = 0;
 uint32_t tiempodeejecucion;
 
 void setup() {
-analogReadResolution(12);
+  analogReadResolution(12);
   init_aux();
 
   init_timers();
 
   init_LFOs();
 
-CUTOFF = 700;
-velocityToVCF = 0;
-VCFKeytrackPerVoice[0] = 0;
-VCFKeytrackPerVoice[0] = 0;
-ADSR2_attack = 0;
-ADSR2_decay = 350;
-ADSR2_sustain = 1100;
-ADSR2_release = 500;
-ADSR2toVCF = 500;
+  CUTOFF = 700;
+  velocityToVCF = 0;
+  VCFKeytrackPerVoice[0] = 0;
+  VCFKeytrackPerVoice[0] = 0;
+  ADSR2_attack = 0;
+  ADSR2_decay = 350;
+  ADSR2_sustain = 1100;
+  ADSR2_release = 500;
+  ADSR2toVCF = 500;
   init_ADSR();
 
- // initScreen();
+  // initScreen();
 
   //initEEPROM();
 
@@ -127,7 +127,6 @@ void loop() {
   millisTimer();
 
   if (timer99microsFlag) {
-    sendDetune2Flag = true;
     read_serial_1();
     read_serial_8();
   }
@@ -139,6 +138,9 @@ void loop() {
   if (timer1msFlag) {
     if (ADSR3Enabled && ADSR3toDETUNE1 != 0) {
       serialSendADSR3ControlValuesFlag = true;
+    }
+    if (PWMPotsControlManual) {
+      serialSendPWFlag = true;
     }
     // formula_update(3);
     // formula_update(2);

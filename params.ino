@@ -41,38 +41,50 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 10:
       ADSR3ToOscSelect = paramValue;
-      serialSendADSR3ToOscSelectFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 11:
       LFO1Waveform = paramValue;
       LFO1_class.setWaveForm(LFO1Waveform);
-      serial_send_LFO1toDCOWaveChangeFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 12:
       LFO2Waveform = paramValue;
       LFO2_class.setWaveForm(LFO2Waveform);
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 13:
       OSC1Interval = paramValue;
-      serial_send_OSC1IntervalFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 14:
       OSC2Interval = paramValue;
-      serial_send_OSC2IntervalFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 15:
       OSC2Detune = paramValue;
+      serialSendParamToDCO[0] = paramNumber;
+      serialSendParamToDCO[1] = paramValue;
       break;
     case 16:
       LFO2toOSC2DETUNE = paramValue;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = (byte)paramValue;
       break;
     case 17:
       oscSyncMode = paramValue;
-      serial_send_oscSyncModeFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 18:
       portamentoTime = paramValue;
-      serial_send_portamentoFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 19:
       VCFKeytrack = paramValue;
@@ -103,27 +115,33 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 26:
       voiceMode = paramValue;
-      serialSendVoiceModeFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 27:
       unisonDetune = paramValue;
-      serialSendUnisonDetuneFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
 
 
     case 40:
       LFO1toDCOVal = paramValue;
       controls_formula_update(3);
-      serial_send_LFO1toDCOFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 41:
       LFO1SpeedVal = paramValue;
       controls_formula_update(1);
-      serial_send_LFO1SpeedFlag = true;
+      serialSendParamToDCO[0] = paramNumber;
+      serialSendParamToDCO[1] = paramValue;
       break;
     case 42:
       LFO2SpeedVal = paramValue;
       controls_formula_update(2);
+      serialSendParamToDCO[0] = paramNumber;
+      serialSendParamToDCO[1] = paramValue;
       break;
     case 43:
       VCALevel = paramValue * 32;
@@ -134,16 +152,19 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
     case 45:
       LFO2toPWM = paramValue;
       formula_update(11);
-      serialSendLFO2ToPWMFlag = true;
+      serialSendParamToDCO[0] = paramNumber;
+      serialSendParamToDCO[1] = paramValue;
       break;
     case 46:
       ADSR3toPWM = paramValue - 512;
-      formula_update(5);
+      serialSendParamToDCO[0] = paramNumber;
+      serialSendParamToDCO[1] = paramValue;
       break;
     case 47:
       ADSR3toDETUNE1 = paramValue;
       formula_update(10);
-      serialSendADSR3toDCOFlag = true;
+      serialSendParamToDCO[0] = paramNumber;
+      serialSendParamToDCO[1] = paramValue;
       break;
     case 48:
       // = paramValue " ADSR1 Curve";
@@ -154,7 +175,8 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
 
     case 124:
       PWMPotsControlManual = paramValue;
-      serialSendPWMPotsControlManualFlag = true;
+      serialSendParamByteToDCO[0] = paramNumber;
+      serialSendParamByteToDCO[1] = paramValue;
       break;
     case 126:
       ADSR3Enabled = paramValue;
