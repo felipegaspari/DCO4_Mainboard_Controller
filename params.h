@@ -31,10 +31,10 @@ byte VCFPots = 0;
 bool VCFPotsControlManual = false;
 
 byte VCAPots = 0;
-bool VCAPotsControlManual = true;
+bool VCAPotsControlManual = false;
 
 byte PWMPots = 0;
-bool PWMPotsControlManual = true;
+bool PWMPotsControlManual = false;
 
 bool allControlsManual = false;
 

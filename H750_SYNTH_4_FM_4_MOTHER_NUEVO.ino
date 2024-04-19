@@ -9,7 +9,7 @@
 
 byte OSC1Interval = 24;
 byte OSC2Interval = 24;
-byte OSC2Detune = 127;
+uint16_t OSC2Detune = 255;
 
 float DETUNE1;
 float DETUNE2;
@@ -92,6 +92,10 @@ void setup() {
   noteStart[0] = 0;
   noteEnd[0] = 1;
 
+    for (int i = 0; i < 20; i++) {
+    formula_update(i);
+    controls_formula_update(i);
+  }
 }
 
 void loop() {
@@ -126,6 +130,9 @@ void loop() {
   if (timer1msFlag) {
     if (ADSR3Enabled && ADSR3toDETUNE1 != 0) {
       serialSendADSR3ControlValuesFlag = true;
+    }
+      if (PWMPotsControlManual) {
+      serialSendPWFlag = true;
     }
     // formula_update(3);
     // formula_update(2);
@@ -182,7 +189,7 @@ void loop() {
 
 #ifdef ENABLE_SERIAL
   //drawTM(tiempodeejecucion);
-  if (1 == 1) {
+  if (1 == 2) {
     //if ( SPIval == 111) {
     //if (timer99microsFlag) {58
     //if (timer31msFlag) {
