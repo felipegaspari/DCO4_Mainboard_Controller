@@ -1,27 +1,9 @@
 void writePreset(uint16_t presetN)
 {
 
-    faderRow1ControlManual = false;
-    faderRow2ControlManual = false;
-    VCFPotsControlManual = false;
-    PWMPotsControlManual = false;
-    VCAPotsControlManual = false;
-
     uint16_t startByteN = presetN * flashPresetSize;
     byte *b;
-    // byte OSC1Interval = 24; 1
-    // byte OSC2Interval = 24; 1
-    // byte OSC2Detune = 127;  1
-    // float DETUNE1;  4
-    // float DETUNE2;  4
-    // uint16_t PW;  2
 
-    // volatile uint16_t SubLevel; 2
-    // volatile uint16_t SQR1Level = 2048; 2
-    // volatile uint16_t SQR2Level;  2
-
-    // volatile uint16_t RESONANCE;  2
-    // volatile int CUTOFF =1024;  4   /// TOTAL 25
 
     // bits
     bitWrite(flashData[0], 0, sawStatus);
@@ -57,7 +39,7 @@ void writePreset(uint16_t presetN)
     flashData[13] = (byte)ADSR3ToOscSelect;
     flashData[14] = (byte)velocityToVCFVal;
     flashData[15] = (byte)velocityToVCAVal;
-    flashData[16] = 0;
+    flashData[16] = (byte)unisonDetune;
     flashData[17] = 0;
     flashData[18] = 0;
     flashData[19] = 0;
@@ -80,8 +62,8 @@ void writePreset(uint16_t presetN)
     flashData[35] = lowByte(SQR2LevelVal);
     flashData[36] = highByte(SubLevelVal);
     flashData[37] = lowByte(SubLevelVal);
-    flashData[38] = highByte(unisonDetune);
-    flashData[39] = lowByte(unisonDetune);
+    flashData[38] = highByte(0);
+    flashData[39] = lowByte(0);
     flashData[40] = highByte(LFO1toDCOVal);
     flashData[41] = lowByte(LFO1toDCOVal);
     flashData[42] = highByte(LFO1SpeedVal);
@@ -206,12 +188,6 @@ void writePreset(uint16_t presetN)
 
     presetSave = false;
     presetSaved = true;
-
-    faderRow2ControlManual = false;
-    faderRow1ControlManual = false;
-    VCFPotsControlManual = false;
-    VCAPotsControlManual = false;
-    PWMPotsControlManual = false;
 
     currentPreset = presetN;
     presetSelectVal = currentPreset;

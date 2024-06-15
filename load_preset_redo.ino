@@ -1,4 +1,5 @@
-void loadPreset(uint16_t presetN) {
+void loadPreset(uint16_t presetN)
+{
 
   byte unused_data;
   uint16_t unused_data_uint16_t;
@@ -16,11 +17,13 @@ void loadPreset(uint16_t presetN) {
   uint16_t startByteN = presetN * flashPresetSize;
 
 #ifdef ENABLE_SD
-  for (int i = 0; i < flashPresetSize; i++) {
+  for (int i = 0; i < flashPresetSize; i++)
+  {
     flashData[i] = presetBank1Buffer[i + startByteN];
   }
 #else
-  for (int i = 0; i < flashPresetSize; i++) {
+  for (int i = 0; i < flashPresetSize; i++)
+  {
     flashData[i] = eeprom_buffered_read_byte(i + startByteN);
   }
 #endif
@@ -36,7 +39,7 @@ void loadPreset(uint16_t presetN) {
   VCAADSRRestart = bitRead(flashData[0], 7);
 
   VCFADSRRestart = bitRead(flashData[1], 0);
-  PWMPotsControlManual = bitRead(flashData[1], 1);
+  PWMPotsControlManual = bitRead(flashData[1], 1); // makes no sense, should be off after loading or writing presets
   ADSR3Enabled = bitRead(flashData[1], 2);
   unused_data = bitRead(flashData[1], 3);
   unused_data = bitRead(flashData[1], 4);
@@ -63,7 +66,7 @@ void loadPreset(uint16_t presetN) {
   velocityToVCFVal = flashData[14];
   velocityToVCAVal = flashData[15];
 
-  unused_data = flashData[16];
+  unisonDetune = flashData[16];
   unused_data = flashData[17];
   unused_data = flashData[18];
   unused_data = flashData[19];
@@ -83,7 +86,7 @@ void loadPreset(uint16_t presetN) {
   SQR1LevelVal = word(flashData[32], flashData[33]);
   SQR2LevelVal = word(flashData[34], flashData[35]);
   SubLevelVal = word(flashData[36], flashData[37]);
-  unisonDetune = word(flashData[38], flashData[39]);
+  unused_data_uint16_t = word(flashData[38], flashData[39]);
   LFO1toDCOVal = word(flashData[40], flashData[41]);
   LFO1SpeedVal = word(flashData[42], flashData[43]);
   LFO2SpeedVal = word(flashData[44], flashData[45]);
@@ -105,7 +108,7 @@ void loadPreset(uint16_t presetN) {
   LFO2toPWM = word(flashData[70], flashData[71]);
 
   unused_data_uint16_t = word(flashData[72], flashData[73]);
-  
+
   CUTOFF = word(flashData[74], flashData[75]);
   RESONANCE = word(flashData[76], flashData[77]);
   ADSR2toVCF = word(flashData[78], flashData[79]);
@@ -150,40 +153,131 @@ void loadPreset(uint16_t presetN) {
   presetName[11] = flashData[130];
 
   /**********************************************************************************/
+  /////////////////// START NEW STUFF //
+  update_waveSelector(4); // 4 = Update All
+                          // RESONANCEAmpCompensation
+  ADSR1_set_restart();    // VCAADSRRestart
 
-  /*   Move parameters to encoder variables */
+  ADSR2_set_restart(); // VCFADSRRestart
+
+  // ADSR3Enabled
+  serialSendParamByteToDCOFunction(124, 0); // PWM control Manual off after loading
+
+  LFO1_class.setWaveForm(LFO1Waveform); // LFO1Waveform
+  serialSendParamByteToDCOFunction(11, LFO1Waveform);
+
+  LFO2_class.setWaveForm(LFO2Waveform); // LFO2Waveform
+  serialSendParamByteToDCOFunction(12, LFO2Waveform);
+
+  serialSendParamByteToDCOFunction(13, OSC1Interval);
+
+  serialSendParamByteToDCOFunction(14, OSC2Interval);
+
+  serialSendParamByteToDCOFunction(17, oscSyncMode);
+
+  serialSendParamByteToDCOFunction(18, portamentoTime);
+
+  serialSendParamByteToDCOFunction(26, voiceMode);
+
+  serialSendParamByteToDCOFunction(10, ADSR3ToOscSelect);
+
+  velocityToVCF = velocityToVCFVal * 0.0003935;
+
+  velocityToVCA = velocityToVCAVal * 0.0003935;
+
+  serialSendParamByteToDCOFunction(27, unisonDetune); //  unisonDetune
+
+  //// int16_t
+
+  // VCFKeytrack // formula_update(1);
+
+  SQR1Level = lin_to_log_128[SQR1LevelVal]; // SQR1LevelVal  // mcpUpdate();
+
+  SQR2Level = lin_to_log_128[SQR2LevelVal]; // SQR2LevelVal  // mcpUpdate();
+
+  SubLevel = constrain((SubLevelVal * 32), 0, 4095); // SubLevelVal  // mcpUpdate();
+
+  serialSendParamToDCOFunction(40, LFO1toDCOVal); // LFO1toDCOVal  // controls_formula_update(3);
+
+  serialSendParamToDCOFunction(41, LFO1SpeedVal); // LFO1SpeedVal  // controls_formula_update(1);
+
+  serialSendParamToDCOFunction(42, LFO2SpeedVal); // LFO2SpeedVal  // controls_formula_update(2);
+
+  serialSendParamToDCOFunction(46, ADSR3toPWM - 512); // ADSR3toPWM
+
+  serialSendParamToDCOFunction(47, ADSR3toDETUNE1); // ADSR3toDETUNE1 
+
+  serialSendParamToDCOFunction(15, OSC2Detune); // OSC2Detune
+
+  serialSendParamToDCOFunction(16, LFO2toOSC2DETUNE); // LFO2toOSC2DETUNE
+
+// VCALevel // VCALevel = paramValue * 32;
+
+// LFO1toVCA
+
+serialSendParamToDCOFunction(45, LFO2toPWM);// LFO2toPWM // formula_update(11);
 
 
-  ADSR2_set_restart();
+// CUTOFF                   ------  PARAM GROUP VCF
+// RESONANCE                ------  PARAM GROUP VCF
+// ADSR2toVCF               ------  PARAM GROUP VCF
+// LFO2toVCF                ------  PARAM GROUP VCF
+// formula_update(4);       ------  PARAM GROUP VCF
+// formula_update(2);       ------  PARAM GROUP VCF
 
-  for (int i = 0; i < 20; i++) {
-    formula_update(i);
-    controls_formula_update(i);
-  }
+// ADSR1toVCA
+// PW
 
-  LFO1_class.setWaveForm(LFO1Waveform);
-  LFO2_class.setWaveForm(LFO2Waveform);
+//  ADSR1_attack
+//  ADSR1_decay
+//  ADSR1_sustain
+//  ADSR1_release
 
-  sendDetune2Flag = true;
-  serial_send_portamentoFlag = true;
-  serial_send_oscSyncModeFlag = true;
-  serial_send_OSC1IntervalFlag = true;
-  serial_send_OSC2IntervalFlag = true;
-  serial_send_LFO1SpeedFlag = true;
-  serial_send_LFO1toDCOFlag = true;
-  serial_send_LFO1toDCOWaveChangeFlag = true;
-  serialSendADSR3ControlValuesFlag = true;
-  serialSendADSR3toDCOFlag = true;
-  serialSendADSR3ToOscSelectFlag = true;
-  serialSendVoiceModeFlag = true;
-  serialSendUnisonDetuneFlag = true;
+//  ADSR2_attack
+//  ADSR2_decay
+//  ADSR2_sustain
+//  ADSR2_release
 
-  sendSerial();
-  delayMicroseconds(100);
-  sendSerial();
+//  ADSR3_attack
+//  ADSR3_decay
+//  ADSR3_sustain
+//  ADSR3_release
+
+serialSendADSR3ControlValuesFlag == true;
+serialSendPWFlag = true;
+
+sendSerial();
+
+controls_formula_update(1); // LFO1Speed
+controls_formula_update(2); // LFO2Speed
+
+formula_update(1); // VCFKeytrack
+formula_update(2); // ADSR2toVCF_formula
+formula_update(4); // LFO2toVCF_formula
+formula_update(8); // ADSR1toVCA_formula
+
+
+  //////////////// END NEW STUFF
 
   presetNameString = String((char *)presetName);
 
   currentPreset = presetN;
   presetSelectVal = currentPreset;
+
+  serial_send_preset_scroll(currentPreset, presetName);
+
+}
+
+void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
+{
+ while(Serial2.availableForWrite() < 4) {};
+  byte bytesArray[4] = {(uint8_t)'w', paramNumber, paramValue, finishByte};
+  Serial2.write(bytesArray, 4);
+}
+
+void serialSendParamToDCOFunction(uint8_t paramNumber, int paramValue)
+{
+  while(Serial2.availableForWrite() < 5) {};
+  byte bytesArray[5] = {(uint8_t)'p', (uint8_t)paramNumber, highByte(paramValue), lowByte(paramValue), finishByte};
+  Serial2.write(bytesArray, 5);
 }

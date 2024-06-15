@@ -165,7 +165,9 @@ void setPWMOuts() {
   htim3->setCaptureCompare(2, PW_PWM[0], TICK_COMPARE_FORMAT);
   htim2->setCaptureCompare(2, PW_PWM[0], TICK_COMPARE_FORMAT);
   htim2->setCaptureCompare(1, PW_PWM[0], TICK_COMPARE_FORMAT);
+#ifndef ENABLE_SD 
   htim8->setCaptureCompare(4, PW_PWM[0], TICK_COMPARE_FORMAT);
+#endif
 #endif
 
 

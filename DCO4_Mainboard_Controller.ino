@@ -1,10 +1,12 @@
 #define NUM_VOICES 4
 
+// PINS reserved for SDMMC: PD2, PC12,PC8, PC9, PC10,PC11
+
 //#define LD_PIN PD_9
 
 //#define ENABLE_SPI
 
-//#define ENABLE_SD
+#define ENABLE_SD
 
 #include "Arduino.h"
 #include "params.h"
@@ -99,10 +101,11 @@ void setup() {
   noteStart[0] = 0;
   noteEnd[0] = 1;
 
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 10; i++) {
     formula_update(i);
     controls_formula_update(i);
   }
+
   VCFKeytrack = 0;
   velocityToVCF = 0;
 }
@@ -128,7 +131,7 @@ void loop() {
   millisTimer();
 
   if (timer223microsFlag) {
-    sendDetune2Flag = true;
+  //  sendDetune2Flag = true;  // myabe obsolete
     read_serial_1();
     read_serial_8();
   }

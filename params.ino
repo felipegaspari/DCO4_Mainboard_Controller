@@ -2,31 +2,27 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
   switch (paramNumber) {
     case 1:
       sawStatus = paramValue;
-      //digitalWrite(PIN_SAW1, sawStatus);
       update_waveSelector(0);
       break;
     case 2:
       saw2Status = paramValue;
       update_waveSelector(1);
-      //digitalWrite(PIN_SAW2, saw2Status);
       break;
     case 3:
       triStatus = paramValue;
       update_waveSelector(2);
-      //digitalWrite(PIN_TRI, triStatus);
       break;
     case 4:
       sineStatus = paramValue;
       update_waveSelector(3);
-      //digitalWrite(PIN_SIN, sineStatus);
       break;
     case 5:
       sqr1Status = paramValue;
-      update_waveSelector(4);
+      //update_waveSelector(4);
       break;
     case 6:
       sqr2Status = paramValue;
-      update_waveSelector(5);
+      //update_waveSelector(5);
       break;
     case 7:
       RESONANCEAmpCompensation = paramValue;
@@ -131,7 +127,6 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
 
     case 40:
       LFO1toDCOVal = paramValue;
-      controls_formula_update(3);
       serialSendParamByteToDCO[0] = paramNumber;
       serialSendParamByteToDCO[1] = paramValue;
       break;
@@ -155,7 +150,6 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 45:
       LFO2toPWM = paramValue;
-      formula_update(11);
       serialSendParamToDCO[0] = paramNumber;
       serialSendParamToDCO[1] = paramValue;
       break;
@@ -166,7 +160,6 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 47:
       ADSR3toDETUNE1 = paramValue;
-      formula_update(10);
       serialSendParamToDCO[0] = paramNumber;
       serialSendParamToDCO[1] = paramValue;
       break;

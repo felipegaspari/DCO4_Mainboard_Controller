@@ -94,9 +94,11 @@ void init_timers() {
 
   htim8->setMode(1, TIMER_OUTPUT_COMPARE_PWM1, TIM8_CH1_PIN);
   htim8->setMode(2, TIMER_OUTPUT_COMPARE_PWM1, TIM8_CH2_PIN);
-  //htim8->setMode(3, TIMER_OUTPUT_COMPARE_PWM1, TIM8_CH3_PIN);
+  //htim8->setMode(3, TIMER_OUTPUT_COMPARE_PWM1, TIM8_CH3_PIN); // SDMMC
 #ifndef ENABLE_SPI
-  htim8->setMode(4, TIMER_OUTPUT_COMPARE_PWM1, TIM8_CH4_PIN);
+#ifndef ENABLE_SD
+  htim8->setMode(4, TIMER_OUTPUT_COMPARE_PWM1, TIM8_CH4_PIN);  // SDMMC ?
+#endif 
 #endif
 
   htim8->pause();
