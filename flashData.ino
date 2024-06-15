@@ -67,6 +67,8 @@ void load_preset_name(byte destinationPreset) {
 #endif
 }
 
+/*
+/*
 void writePreset(uint16_t presetN) {
 
   faderRow1ControlManual = false;
@@ -123,7 +125,50 @@ void writePreset(uint16_t presetN) {
   flashData[26] = lowByte(ADSR1toDETUNE2);
   //ADSR2
   flashData[27] = highByte(ADSR2toVCA);
-  flashData[28] = lowByte(ADSR2toVCA);
+  flashData[2void writePreset(uint16_t presetN) {
+
+  faderRow1ControlManual = false;
+  faderRow2ControlManual = false;
+  VCFPotsControlManual = false;
+  PWMPotsControlManual = false;
+  VCAPotsControlManual = false;
+
+  uint16_t startByteN = presetN * flashPresetSize;
+  byte *b;
+  //byte OSC1Interval = 24; 1
+  //byte OSC2Interval = 24; 1
+  //byte OSC2Detune = 127;  1
+  //float DETUNE1;  4
+  //float DETUNE2;  4
+  //uint16_t PW;  2
+
+  //volatile uint16_t SubLevel; 2
+  //volatile uint16_t SQR1Level = 2048; 2
+  //volatile uint16_t SQR2Level;  2
+
+  //volatile uint16_t RESONANCE;  2
+  //volatile int CUTOFF =1024;  4   /// TOTAL 25
+
+  flashData[0] = OSC1Interval;
+  flashData[1] = OSC2Interval;
+  flashData[2] = OSC2Detune;
+  flashData[3] = highByte(PW);
+  flashData[4] = lowByte(PW);
+  flashData[5] = highByte(SubLevel);
+  flashData[6] = lowByte(SubLevel);
+  flashData[7] = highByte(SQR1Level);
+  flashData[8] = lowByte(SQR1Level);
+  flashData[9] = highByte(SQR2Level);
+  flashData[10] = lowByte(SQR2Level);
+  flashData[11] = highByte(RESONANCE);
+  flashData[12] = lowByte(RESONANCE);
+  flashData[13] = highByte(CUTOFF);
+  flashData[14] = lowByte(CUTOFF);
+
+  flashData[15] = voiceMode;
+ flashData[16] = (uint8_t)unisonDetune;
+
+  // ADSR18] = lowByte(ADSR2toVCA);
   flashData[29] = highByte(ADSR2toVCF);
   flashData[30] = lowByte(ADSR2toVCF);
   flashData[31] = highByte(ADSR2toPWM);
@@ -283,7 +328,10 @@ void writePreset(uint16_t presetN) {
   currentPreset = presetN;
   presetSelectVal = currentPreset;
 }
+*/
+//*/
 
+/*
 void loadPreset(uint16_t presetN) {
   //eeprom_buffer_fill();
 
@@ -419,7 +467,7 @@ void loadPreset(uint16_t presetN) {
   presetName[11] = flashData[130];
 
 
-  /**********************************************************************************/
+  //*********************************************************************************
 
 
   velocityToVCF = velocityToVCFVal * 0.0005;
@@ -428,7 +476,7 @@ void loadPreset(uint16_t presetN) {
 
 
 
-  /*   Move parameters to encoder variables */
+  //*   Move parameters to encoder variables *
   portamentoTimeVal = portamentoTime;
 
   VCFKeytrackVal = (int16_t)VCFKeytrack;
@@ -460,31 +508,31 @@ void loadPreset(uint16_t presetN) {
 
   oscSyncModeVal = oscSyncMode;
 
-  /* NOT IMPLEMENTED
-  ADSR1toVCA =
-  ADSR1toVCF = 
-  //ADSR2
-  ADSR2toVCA = word(flashData[27], flashData[28]);
-  ADSR2toVCF = word(flashData[29], flashData[30]);
-  ADSR2toPWM = word(flashData[31], flashData[32]);
-  ADSR2toDETUNE1 = word(flashData[33], flashData[34]);
-  ADSR2toDETUNE2 = word(flashData[35], flashData[36]);
-  //ADSR3
-  ADSR3toVCA = word(flashData[37], flashData[38]);
-  ADSR3toVCF = word(flashData[39], flashData[40]);
-  ADSR3toDETUNE2 = word(flashData[45], flashData[46]);
+  // // NOT IMPLEMENTED
+  // ADSR1toVCA =
+  // ADSR1toVCF = 
+  // //ADSR2
+  // ADSR2toVCA = word(flashData[27], flashData[28]);
+  // ADSR2toVCF = word(flashData[29], flashData[30]);
+  // ADSR2toPWM = word(flashData[31], flashData[32]);
+  // ADSR2toDETUNE1 = word(flashData[33], flashData[34]);
+  // ADSR2toDETUNE2 = word(flashData[35], flashData[36]);
+  // //ADSR3
+  // ADSR3toVCA = word(flashData[37], flashData[38]);
+  // ADSR3toVCF = word(flashData[39], flashData[40]);
+  // ADSR3toDETUNE2 = word(flashData[45], flashData[46]);
 
-  LFO1toVCFVal = expConverterReverse(LFO1toVCF, 500);
-  // REVISAR !! LFO2toVCFVal = expConverterReverse(LFO2toVCF, 500);
-
-*/
-  /* --------------------------------- */
+  // LFO1toVCFVal = expConverterReverse(LFO1toVCF, 500);
+  // // REVISAR !! LFO2toVCFVal = expConverterReverse(LFO2toVCF, 500);
 
 
-  digitalWrite(PIN_TRI, triStatus);
-  digitalWrite(PIN_SIN, sineStatus);
-  digitalWrite(PIN_SAW1, sawStatus);
-  digitalWrite(PIN_SAW2, saw2Status);
+  // * --------------------------------- 
+
+
+  // digitalWrite(PIN_TRI, triStatus);
+  // digitalWrite(PIN_SIN, sineStatus);
+  // digitalWrite(PIN_SAW1, sawStatus);
+  // digitalWrite(PIN_SAW2, saw2Status);
 
   ADSR2_set_restart();
 
@@ -519,3 +567,4 @@ void loadPreset(uint16_t presetN) {
   currentPreset = presetN;
   presetSelectVal = currentPreset;
 }
+*/

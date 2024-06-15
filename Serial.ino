@@ -124,8 +124,8 @@ void read_serial_1() {
           CUTOFF = word(byteArray[0], byteArray[1]);
           RESONANCE = word(byteArray[2], byteArray[3]);
           ADSR2toVCF = word(byteArray[4], byteArray[5]);
-          LFO1toVCF = word(byteArray[6], byteArray[7]);
-          formula_update(3);
+          LFO2toVCF = word(byteArray[6], byteArray[7]);
+          formula_update(4);
           formula_update(2);
           break;
         }
@@ -302,10 +302,10 @@ void read_serial_2() {
           CUTOFF = word(byteArray[0], byteArray[1]);
           RESONANCE = word(byteArray[2], byteArray[3]);
           ADSR2toVCF = word(byteArray[4], byteArray[5]);
-          LFO1toVCF = word(byteArray[6], byteArray[7]);
+          LFO2toVCF = word(byteArray[6], byteArray[7]);
 
           formula_update(2);
-          formula_update(3);
+          formula_update(4);
 
           break;
         }
@@ -441,16 +441,19 @@ void read_serial_8() {
 #ifdef ENABLE_SERIAL8
   while (Serial8.available() > 0) {
     char commandCharacter = Serial8.read();  //we use characters (letters) for controlling the switch-case
+
     switch (commandCharacter) {
       case 'a':
         {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR1_attack = word(byteArray[0], byteArray[1]);
-          ADSR1_decay = word(byteArray[2], byteArray[3]);
-          ADSR1_sustain = word(byteArray[4], byteArray[5]);
-          ADSR1_release = word(byteArray[6], byteArray[7]);
+
+          //MAP AND CONSTRAIN functions should be implemented on the input board.
+          ADSR1_attack = map(constrain(word(byteArray[0], byteArray[1]),20,4075),20,4075,0,4095);
+          ADSR1_decay = map(constrain(word(byteArray[2], byteArray[3]),20,4075),20,4075,0,4095);;
+          ADSR1_sustain = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
+          ADSR1_release = map(constrain(word(byteArray[6], byteArray[7]),15,4075),15,4075,0,4095);;
           break;
         }
       case 'b':
@@ -458,10 +461,10 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR2_attack = word(byteArray[0], byteArray[1]);
-          ADSR2_decay = word(byteArray[2], byteArray[3]);
-          ADSR2_sustain = word(byteArray[4], byteArray[5]);
-          ADSR2_release = word(byteArray[6], byteArray[7]);
+          ADSR2_attack = map(constrain(word(byteArray[0], byteArray[1]),20,4075),20,4075,5,4095);;
+          ADSR2_decay = map(constrain(word(byteArray[2], byteArray[3]),20,4075),20,4075,0,4095);;
+          ADSR2_sustain = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
+          ADSR2_release = map(constrain(word(byteArray[6], byteArray[7]),20,4075),20,4075,13,4095);;
           break;
         }
       case 'c':
@@ -469,10 +472,10 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR3_attack = word(byteArray[0], byteArray[1]);
-          ADSR3_decay = word(byteArray[2], byteArray[3]);
-          ADSR3_sustain = word(byteArray[4], byteArray[5]);
-          ADSR3_release = word(byteArray[6], byteArray[7]);
+          ADSR3_attack = map(constrain(word(byteArray[0], byteArray[1]),20,4075),20,4075,5,4095);;
+          ADSR3_decay = map(constrain(word(byteArray[2], byteArray[3]),20,4075),20,4075,0,4095);;
+          ADSR3_sustain = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
+          ADSR3_release = map(constrain(word(byteArray[6], byteArray[7]),20,4075),20,4075,13,4095);;
           break;
         }
       case 'd':
@@ -480,11 +483,11 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          CUTOFF = word(byteArray[0], byteArray[1]);
-          RESONANCE = word(byteArray[2], byteArray[3]);
-          ADSR2toVCF = word(byteArray[4], byteArray[5]);
-          LFO1toVCF = word(byteArray[6], byteArray[7]);
-          formula_update(3);
+          CUTOFF = map(constrain(word(byteArray[0], byteArray[1]),20, 4075),20,4075,0,4095);
+          RESONANCE = map(constrain(word(byteArray[2], byteArray[3]),20, 4075),20,4075,0,4095);
+          ADSR2toVCF = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
+          LFO2toVCF = map(constrain(word(byteArray[6], byteArray[7]),20, 4075),20,4075,0,4095);
+          formula_update(4);
           formula_update(2);
           break;
         }
@@ -493,7 +496,7 @@ void read_serial_8() {
           byte byteArray[2];
           Serial8.readBytes(byteArray, 2);
 
-          ADSR1toVCA = word(byteArray[0], byteArray[1]);
+          ADSR1toVCA = map(constrain(word(byteArray[0], byteArray[1]),20, 4075),20,4075,0,4095);
           break;
         }
       case 'f':
@@ -501,7 +504,7 @@ void read_serial_8() {
           byte byteArray[2];
           Serial8.readBytes(byteArray, 2);
 
-          PW = word(byteArray[0], byteArray[1]);
+          PW = map(constrain(word(byteArray[0], byteArray[1]),20, 4075),20,4075,0,4095);
           break;
         }
       case 'n':

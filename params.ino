@@ -100,15 +100,19 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 22:
       SQR1LevelVal = paramValue;
-      SQR1Level = 4096 - (SQR1LevelVal * 32);
+      SQR1Level = lin_to_log_128[SQR1LevelVal];
+      mcpUpdate();
+      break;
       break;
     case 23:
       SQR2LevelVal = paramValue;
-      SQR2Level = 4096 - (SQR2LevelVal * 32);
+      SQR2Level =lin_to_log_128[SQR2LevelVal];
+      mcpUpdate();
       break;
     case 24:
       SubLevelVal = paramValue;
-      SubLevel = 4096 - (SubLevelVal * 32);
+      SubLevel = constrain((SubLevelVal * 32),0,4095);
+      mcpUpdate();
       break;
     case 25:
       // = paramValue " CALIBRATION VAL";

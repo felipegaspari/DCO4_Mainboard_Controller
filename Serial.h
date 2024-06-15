@@ -7,7 +7,7 @@
 #define ENABLE_SERIAL8
 
 #ifdef ENABLE_SERIAL1
-HardwareSerial Serial1(PA10, PA9);
+HardwareSerial Serial1(PA10, PA9); // TO SCREEN CONTROLLER
 #endif
 
 #ifdef ENABLE_SERIAL2
@@ -15,7 +15,7 @@ HardwareSerial Serial2(PD6, PD5); // TO DCO
 #endif
 
 #ifdef ENABLE_SERIAL8
-HardwareSerial Serial8(PE0, PE1);
+HardwareSerial Serial8(PE0, PE1); // TO INPUT BOARD
 #endif
 
 float freq;

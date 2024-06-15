@@ -5,7 +5,7 @@ void init_waveSelector() {
   waveSelectorMux.begin(PIN_DATA, PIN_LATCH, PIN_CLK, PIN_PWM);
   waveSelectorMux.setBrightness(255);
   waveSelectorMux.allOff();
-  waveSelectorMux.update();
+
 }
 
 void update_waveSelector(byte wave) {

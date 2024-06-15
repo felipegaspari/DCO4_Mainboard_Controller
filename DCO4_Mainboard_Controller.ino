@@ -1,27 +1,8 @@
-#include <adsr.h>
-
 #define NUM_VOICES 4
 
-#define PIN_SAW1 70
-#define PIN_SAW2 70
-#define PIN_TRI 70
-#define PIN_SIN 70
+//#define LD_PIN PD_9
 
-byte OSC1Interval = 24;
-byte OSC2Interval = 24;
-uint16_t OSC2Detune = 255;
-
-float DETUNE1;
-float DETUNE2;
-uint16_t PW;
-
-uint16_t SubLevel;
-uint16_t SQR1Level;
-uint16_t SQR2Level;
-
-uint16_t RESONANCE;
-uint16_t CUTOFF = 1024;
-uint16_t VCALevel = 0;
+//#define ENABLE_SPI
 
 //#define ENABLE_SD
 
@@ -38,12 +19,32 @@ uint16_t VCALevel = 0;
 #include "Screen.h"
 
 #include "flashData.h"
-//#include "autotune.h"
+
 #include "formulas.h"
+#include "tables.h"
 #include "waveSelector.h"
 
+#ifdef ENABLE_SPI
+#include "SPI_settings.h"
+#endif
 
-//static const float clockFreq = 168000000;
+//#include "autotune.h"
+
+byte OSC1Interval = 24;
+byte OSC2Interval = 24;
+uint16_t OSC2Detune = 255;
+
+float DETUNE1;
+float DETUNE2;
+uint16_t PW;
+
+uint16_t SubLevel;
+uint16_t SQR1Level;
+uint16_t SQR2Level;
+
+uint16_t RESONANCE;
+uint16_t CUTOFF = 1024;
+uint16_t VCALevel = 0;
 
 uint16_t random1;
 uint16_t random2;
@@ -72,6 +73,12 @@ void setup() {
 
   init_waveSelector();
 
+  init_MCP4728();
+
+#ifdef ENABLE_SPI
+//init_BU2505FV();
+#endif
+
   //initAutotune();
 
 #ifdef ENABLE_SERIAL
@@ -92,10 +99,12 @@ void setup() {
   noteStart[0] = 0;
   noteEnd[0] = 1;
 
-    for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 20; i++) {
     formula_update(i);
     controls_formula_update(i);
   }
+  VCFKeytrack = 0;
+  velocityToVCF = 0;
 }
 
 void loop() {
@@ -103,6 +112,7 @@ void loop() {
   //   if  (timer200msFlag) {
   //  drawTM(potMedian[7]);
   //    }
+
 
   unsigned long loopStartTime = micros();
 
@@ -117,7 +127,7 @@ void loop() {
 
   millisTimer();
 
-  if (timer99microsFlag) {
+  if (timer223microsFlag) {
     sendDetune2Flag = true;
     read_serial_1();
     read_serial_8();
@@ -131,19 +141,16 @@ void loop() {
     if (ADSR3Enabled && ADSR3toDETUNE1 != 0) {
       serialSendADSR3ControlValuesFlag = true;
     }
-      if (PWMPotsControlManual) {
+    if (PWMPotsControlManual) {
       serialSendPWFlag = true;
     }
-    // formula_update(3);
+    // formula_update(4);
     // formula_update(2);
   }
 
   read_serial_2();
 
   if (timer99microsFlag == 1) {
-
-    // LFO1();
-    // LFO2();
   }
 
   LFO1();
@@ -152,8 +159,9 @@ void loop() {
   ADSR_update();
 
   setPWMOuts();
-
+    
   sendSerial();
+
 
   //unsigned long tiempodeejecuciontotal = micros() - loopStartTime;
 

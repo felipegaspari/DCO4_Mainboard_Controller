@@ -54,7 +54,6 @@ byte loadedName[17];
 bool funcKeyOn = false;
 
 // encoder values
-int16_t portamentoTimeVal;
 
 int16_t VCFKeytrackVal;
 
@@ -62,31 +61,20 @@ int16_t SQR1LevelVal;
 int16_t SQR2LevelVal;
 int16_t SubLevelVal;
 
-int8_t OSC1IntervalVal;
-int8_t OSC2IntervalVal;
-int16_t OSC2DetuneVal;
 int16_t unisonDetune;
 
 int16_t VCALevelVal;
 
-int16_t ADSR3toDETUNE1Val;
-int16_t ADSR3toPWMVal;
 
 int8_t velocityToVCFVal = 0;
 int8_t velocityToVCAVal = 0;
 int8_t velocityToPWMVal = 0;
-
-int16_t LFO2toOSC2DETUNEVal;
 
 int16_t LFO1toDCOVal;
 int16_t LFO2toDCOVal;
 int16_t LFO3toDCOVal;
 
 int16_t LFO1toVCAVal;
-
-int16_t LFO1toPWMVal;
-int16_t LFO2toPWMVal;
-int16_t LFO3toPWMVal;
 
 int16_t LFO1SpeedVal;
 int16_t LFO2SpeedVal;
@@ -95,13 +83,6 @@ int16_t LFO3SpeedVal;
 int16_t LFO1toVCFVal;
 int16_t LFO2toVCFVal;
 int16_t LFO3toVCFVal;
-
-
-int8_t LFO1WaveformVal;
-int8_t LFO2WaveformVal;
-int8_t LFO3WaveformVal;
-
-int8_t oscSyncModeVal;
 
 int8_t ADSR3ToOscSelect;
 
@@ -125,7 +106,7 @@ bool VCAADSRRestart = true;
 
 byte VCFKeytrack = 0;
 float VCFKeytrackModifier = 1;
-byte VCFKeytrackPerVoice[NUM_VOICES];
+float VCFKeytrackPerVoice[NUM_VOICES];
 byte oscSyncMode = 0;
 byte voiceMode = 0;
 
