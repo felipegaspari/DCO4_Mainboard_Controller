@@ -102,12 +102,12 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 23:
       SQR2LevelVal = paramValue;
-      SQR2Level =lin_to_log_128[SQR2LevelVal];
+      SQR2Level = lin_to_log_128[SQR2LevelVal];
       mcpUpdate();
       break;
     case 24:
       SubLevelVal = paramValue;
-      SubLevel = constrain((SubLevelVal * 32),0,4095);
+      SubLevel = constrain((SubLevelVal * 32), 0, 4095);
       mcpUpdate();
       break;
     case 25:
@@ -181,17 +181,23 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
     case 127:
       //= paramValue " FUNCTION KEY";
       break;
-    case 140:                       // scroll preset  
-    serial_send_preset_scroll(paramValue, presetName);
-    break;
-    case 141:                       // load preset
-    loadPreset(paramValue);
-    serial_send_preset_scroll(paramValue, presetName);
-    break;
-    case 142:                       //  write preset
-    writePreset(paramValue);
-    serial_send_signal(5);
-    break;
+    case 140:                         // scroll preset
+      {
+        byte presetNameScroll[12];
+        get_preset_name(paramValue, presetNameScroll);
+        serial_send_preset_scroll(paramValue, presetNameScroll);
+        break;
+      }
+    case 141:                         // load preset
+      {
+        loadPreset(paramValue);
+        serial_send_preset_scroll(paramValue, presetName);
+        break;
+      }
+    case 142:  //  write preset
+      writePreset(paramValue);
+      serial_send_signal(5);
+      break;
 
       // case 101:
       //   = paramValue " CALIB MODE";
