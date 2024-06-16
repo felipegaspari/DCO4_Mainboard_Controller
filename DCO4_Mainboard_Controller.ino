@@ -18,7 +18,7 @@
 #include "Timers_millis.h"
 #include "Serial.h"
 
-#include "Screen.h"
+//#include "Screen.h"
 
 #include "flashData.h"
 
@@ -71,8 +71,6 @@ void setup() {
 
   initScreen();
 
-  initEEPROM();
-
   init_waveSelector();
 
   init_MCP4728();
@@ -81,6 +79,8 @@ void setup() {
 //init_BU2505FV();
 #endif
 
+  initEEPROM();
+  
   //initAutotune();
 
 #ifdef ENABLE_SERIAL

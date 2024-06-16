@@ -84,7 +84,7 @@ void setPWMOuts() {
     }
 
     VCF_PWM[i] =
-      //map(
+      4095 -
         (int)constrain(
           (
             (
@@ -93,8 +93,7 @@ void setPWMOuts() {
               + CUTOFF)
             * (1 - ((float)velocityToVCF * (127 - velocity[i])))
             * (float)VCFKeytrackPerVoice[i]),
-          0, 4095); //,
-        //0, 4095, ADSR_2_CC, 0);
+          0, 4095); 
   }
 
   // /* ***************************           PW PWM          *****************************/
@@ -152,12 +151,12 @@ void setPWMOuts() {
   htim2->setCaptureCompare(4, SubLevel, TICK_COMPARE_FORMAT);  // SUB3
 
   // PWM SUELTOS
-  htim8->setCaptureCompare(2, 4095 - ssi2144_linear_table[VCF_PWM[0]], TICK_COMPARE_FORMAT);
-  htim4->setCaptureCompare(4, 4095 - ssi2144_linear_table[VCF_PWM[1]], TICK_COMPARE_FORMAT);
-  htim4->setCaptureCompare(2, 4095 - ssi2144_linear_table[VCF_PWM[2]], TICK_COMPARE_FORMAT);
+  htim8->setCaptureCompare(2, VCF_PWM[0], TICK_COMPARE_FORMAT);
+  htim4->setCaptureCompare(4, VCF_PWM[1], TICK_COMPARE_FORMAT);
+  htim4->setCaptureCompare(2, VCF_PWM[2], TICK_COMPARE_FORMAT);
 #ifndef ENABLE_SPI
 
-  htim12->setCaptureCompare(2, 4095 - ssi2144_linear_table[VCF_PWM[3]], TICK_COMPARE_FORMAT);  //  CONFLICT WITH SPI PIN !!
+  htim12->setCaptureCompare(2, VCF_PWM[3], TICK_COMPARE_FORMAT);  //  CONFLICT WITH SPI PIN !!
 #endif
 
 // SQUARE PW

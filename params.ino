@@ -181,7 +181,17 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
     case 127:
       //= paramValue " FUNCTION KEY";
       break;
-
+    case 140:                       // scroll preset  
+    serial_send_preset_scroll(paramValue, presetName);
+    break;
+    case 141:                       // load preset
+    loadPreset(paramValue);
+    serial_send_preset_scroll(paramValue, presetName);
+    break;
+    case 142:                       //  write preset
+    writePreset(paramValue);
+    serial_send_signal(5);
+    break;
 
       // case 101:
       //   = paramValue " CALIB MODE";

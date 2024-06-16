@@ -256,6 +256,7 @@ formula_update(2); // ADSR2toVCF_formula
 formula_update(4); // LFO2toVCF_formula
 formula_update(8); // ADSR1toVCA_formula
 
+mcpUpdate();
 
   //////////////// END NEW STUFF
 
@@ -266,18 +267,4 @@ formula_update(8); // ADSR1toVCA_formula
 
   serial_send_preset_scroll(currentPreset, presetName);
 
-}
-
-void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
-{
- while(Serial2.availableForWrite() < 4) {};
-  byte bytesArray[4] = {(uint8_t)'w', paramNumber, paramValue, finishByte};
-  Serial2.write(bytesArray, 4);
-}
-
-void serialSendParamToDCOFunction(uint8_t paramNumber, int paramValue)
-{
-  while(Serial2.availableForWrite() < 5) {};
-  byte bytesArray[5] = {(uint8_t)'p', (uint8_t)paramNumber, highByte(paramValue), lowByte(paramValue), finishByte};
-  Serial2.write(bytesArray, 5);
 }

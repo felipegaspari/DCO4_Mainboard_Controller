@@ -175,3 +175,17 @@ void sendSerial() {
     serialSendParamToDCO[0] = 0;
   }
 }
+
+void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
+{
+ while(Serial2.availableForWrite() < 4) {};
+  byte bytesArray[4] = {(uint8_t)'w', paramNumber, paramValue, finishByte};
+  Serial2.write(bytesArray, 4);
+}
+
+void serialSendParamToDCOFunction(uint8_t paramNumber, int paramValue)
+{
+  while(Serial2.availableForWrite() < 5) {};
+  byte bytesArray[5] = {(uint8_t)'p', (uint8_t)paramNumber, highByte(paramValue), lowByte(paramValue), finishByte};
+  Serial2.write(bytesArray, 5);
+}

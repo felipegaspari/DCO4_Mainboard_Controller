@@ -83,248 +83,55 @@ void read_serial_1() {
   while (Serial1.available() > 0) {
     char commandCharacter = Serial1.read();  //we use characters (letters) for controlling the switch-case
     switch (commandCharacter) {
-      case 'a':
-        {
-          byte byteArray[8];
-          Serial1.readBytes(byteArray, 8);
+        //     case 'r':
+        // {
+        //   byte presetNameBytes[8] = { 32, 32, 32, 32, 32, 32, 32, 32 };
+        //   while (Serial1.available() < 1) {}
+        //   presetNumber = Serial1.read();
+        //   while (Serial1.available() < 1) {}
 
-          ADSR1_attack = word(byteArray[0], byteArray[1]);
-          ADSR1_decay = word(byteArray[2], byteArray[3]);
-          ADSR1_sustain = word(byteArray[4], byteArray[5]);
-          ADSR1_release = word(byteArray[6], byteArray[7]);
-          break;
-        }
-      case 'b':
-        {
-          byte byteArray[8];
-          Serial1.readBytes(byteArray, 8);
+        //   Serial1.readBytes(presetNameBytes, 8);
+        //   for (int i = 0; i < 8; i++) {
+        //     presetName[i] = presetNameBytes[i];
+        //   }
+        //   break;
+        // }
+      // case 's':
+      //   {
+      //     while (Serial1.available() < 1) {}
+      //     serialSignal = Serial1.read();
+      //     switch(serialSignal) {
+      //       case 0:
+      //       break;
+      //       case 1:
+      //       break;
+      //       case 2:
+      //       break;
+      //       case 3:
+      //       break;
+      //       case 4:
+      //       // should get the number to save
+      //       break;
+      //       case 5:
+      //       writePreset(0);
+      //       break;
+      //     }
 
-          ADSR2_attack = word(byteArray[0], byteArray[1]);
-          ADSR2_decay = word(byteArray[2], byteArray[3]);
-          ADSR2_sustain = word(byteArray[4], byteArray[5]);
-          ADSR2_release = word(byteArray[6], byteArray[7]);
-          break;
-        }
-      case 'c':
-        {
-          byte byteArray[8];
-          Serial1.readBytes(byteArray, 8);
-
-          ADSR3_attack = word(byteArray[0], byteArray[1]);
-          ADSR3_decay = word(byteArray[2], byteArray[3]);
-          ADSR3_sustain = word(byteArray[4], byteArray[5]);
-          ADSR3_release = word(byteArray[6], byteArray[7]);
-          break;
-        }
-      case 'd':
-        {
-          byte byteArray[8];
-          Serial1.readBytes(byteArray, 8);
-
-          CUTOFF = word(byteArray[0], byteArray[1]);
-          RESONANCE = word(byteArray[2], byteArray[3]);
-          ADSR2toVCF = word(byteArray[4], byteArray[5]);
-          LFO2toVCF = word(byteArray[6], byteArray[7]);
-          formula_update(4);
-          formula_update(2);
-          break;
-        }
-      case 'e':
-        {
-          byte byteArray[2];
-          Serial1.readBytes(byteArray, 2);
-
-          ADSR1toVCA = word(byteArray[0], byteArray[1]);
-          break;
-        }
-      case 'f':
-        {
-          byte byteArray[2];
-          Serial1.readBytes(byteArray, 2);
-
-          PW = word(byteArray[0], byteArray[1]);
-          break;
-        }
-      case 'n':
-        {
-          byte byteArray[3];
-          while (Serial1.available() < 3) {}
-          Serial1.readBytes(byteArray, 3);
-
-          byte voice_n = byteArray[0];
-          velocity[voice_n] = byteArray[1];
-          note[voice_n] = byteArray[2];
-
-          noteStart[voice_n] = 1;
-          noteEnd[voice_n] = 0;
-          break;
-        }
-      case 'o':
-        {
-          byte voice_n;
-          while (Serial1.available() < 1) {}
-          voice_n = Serial1.read();
-          noteEnd[voice_n] = 1;
-          noteStart[voice_n] = 0;
-          break;
-        }
-      case 'p':
-        {
-          byte paramBytes[3];
-          byte finishByte = 1;
-          byte readByte = 0;
-
-          while (Serial1.available() < 1) {}
-
-          Serial1.readBytes(paramBytes, 3);
-
-          while (readByte != finishByte) {
-            readByte = Serial1.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          int16_t paramValue = (int16_t)word(paramBytes[1], paramBytes[2]);
-
-          update_parameters(paramNumber, paramValue);
-
-          break;
-        }
-      case 'w':
-        {
-          byte paramBytes[2];
-          byte finishByte = 1;
-          byte readByte = 0;
-
-          while (Serial1.available() < 1) {}
-
-          Serial1.readBytes(paramBytes, 2);
-
-          while (readByte != finishByte) {
-            readByte = Serial1.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          int16_t paramValue = paramBytes[1];
-
-          update_parameters(paramNumber, (uint16_t)paramValue);
-          break;
-        }
-      case 'z':
-        {
-          // if (commandCharacter == 'v') //based on the command character, we decide what to do
-          byte dataArray[2];
-
-          byte ndata = 0;
-          while (ndata < 2) {
-            //for (byte ndata = 0; ndata < 122; ndata++)
-            if (Serial1.available() > 0) {
-              dataArray[ndata] = Serial1.read();
-              ndata++;
-            }
-          }
-          uint16_t a;
-          ((uint8_t *)&a)[0] = dataArray[0];
-          ((uint8_t *)&a)[1] = dataArray[1];
-          //Serial.println(" raw ");
-          //Serial.println(a);
-
-          break;
-        }
-      case 'g':
-        {
-          byte dataArray[4];
-
-          byte ndata = 0;
-          while (ndata < 4) {
-            //for (byte ndata = 0; ndata < 122; ndata++)
-            //if (Serial1.available() > 0) {
-            while (Serial1.available() < 1) {}
-            dataArray[ndata] = Serial1.read();
-            ndata++;
-            //}
-          }
-          float a;
-          ((uint8_t *)&a)[0] = dataArray[0];
-          ((uint8_t *)&a)[1] = dataArray[1];
-          ((uint8_t *)&a)[2] = dataArray[2];
-          ((uint8_t *)&a)[3] = dataArray[3];
-
-          freq = a;
-          break;
-        }
+      //     break;
+      //   }
+      default:
+        break;
     }
   }
 #endif
 }
+
 void read_serial_2() {
 #ifdef ENABLE_SERIAL2
   while (Serial2.available() > 0) {
     char commandCharacter = Serial2.read();  //we use characters (letters) for controlling the switch-case
     switch (commandCharacter) {
-      case 'a':
-        {
-          byte byteArray[8];
-          Serial2.readBytes(byteArray, 8);
 
-          ADSR1_attack = word(byteArray[0], byteArray[1]);
-          ADSR1_decay = word(byteArray[2], byteArray[3]);
-          ADSR1_sustain = word(byteArray[4], byteArray[5]);
-          ADSR1_release = word(byteArray[6], byteArray[7]);
-          break;
-        }
-      case 'b':
-        {
-          byte byteArray[8];
-          Serial2.readBytes(byteArray, 8);
-
-          ADSR2_attack = word(byteArray[0], byteArray[1]);
-          ADSR2_decay = word(byteArray[2], byteArray[3]);
-          ADSR2_sustain = word(byteArray[4], byteArray[5]);
-          ADSR2_release = word(byteArray[6], byteArray[7]);
-          break;
-        }
-      case 'c':
-        {
-          byte byteArray[8];
-          Serial2.readBytes(byteArray, 8);
-
-          ADSR3_attack = word(byteArray[0], byteArray[1]);
-          ADSR3_decay = word(byteArray[2], byteArray[3]);
-          ADSR3_sustain = word(byteArray[4], byteArray[5]);
-          ADSR3_release = word(byteArray[6], byteArray[7]);
-          break;
-        }
-      case 'd':
-        {
-          byte byteArray[8];
-          Serial2.readBytes(byteArray, 8);
-
-          CUTOFF = word(byteArray[0], byteArray[1]);
-          RESONANCE = word(byteArray[2], byteArray[3]);
-          ADSR2toVCF = word(byteArray[4], byteArray[5]);
-          LFO2toVCF = word(byteArray[6], byteArray[7]);
-
-          formula_update(2);
-          formula_update(4);
-
-          break;
-        }
-      case 'e':
-        {
-          byte byteArray[2];
-          Serial2.readBytes(byteArray, 2);
-
-          ADSR1toVCA = word(byteArray[0], byteArray[1]);
-          break;
-        }
-      case 'f':
-        {
-          byte byteArray[2];
-          Serial2.readBytes(byteArray, 2);
-
-          PW = word(byteArray[0], byteArray[1]);
-          break;
-        }
       case 'n':
         {
           byte byteArray[3];
@@ -389,49 +196,6 @@ void read_serial_2() {
           update_parameters(paramNumber, (uint16_t)paramValue);
           break;
         }
-      case 'z':
-        {
-          // if (commandCharacter == 'v') //based on the command character, we decide what to do
-          byte dataArray[2];
-
-          byte ndata = 0;
-          while (ndata < 2) {
-            //for (byte ndata = 0; ndata < 122; ndata++)
-            if (Serial2.available() > 0) {
-              dataArray[ndata] = Serial2.read();
-              ndata++;
-            }
-          }
-          uint16_t a;
-          ((uint8_t *)&a)[0] = dataArray[0];
-          ((uint8_t *)&a)[1] = dataArray[1];
-          //Serial.println(" raw ");
-          //Serial.println(a);
-
-          break;
-        }
-      case 'g':
-        {
-          byte dataArray[4];
-
-          byte ndata = 0;
-          while (ndata < 4) {
-            //for (byte ndata = 0; ndata < 122; ndata++)
-            //if (Serial2.available() > 0) {
-            while (Serial2.available() < 1) {}
-            dataArray[ndata] = Serial2.read();
-            ndata++;
-            //}
-          }
-          float a;
-          ((uint8_t *)&a)[0] = dataArray[0];
-          ((uint8_t *)&a)[1] = dataArray[1];
-          ((uint8_t *)&a)[2] = dataArray[2];
-          ((uint8_t *)&a)[3] = dataArray[3];
-
-          freq = a;
-          break;
-        }
     }
   }
 #endif
@@ -450,10 +214,12 @@ void read_serial_8() {
 
 
           //MAP AND CONSTRAIN functions should be implemented on the input board.
-          ADSR1_attack = map(constrain(word(byteArray[0], byteArray[1]),20,4075),20,4075,0,4095);
-          ADSR1_decay = map(constrain(word(byteArray[2], byteArray[3]),20,4075),20,4075,0,4095);;
-          ADSR1_sustain = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
-          ADSR1_release = map(constrain(word(byteArray[6], byteArray[7]),15,4075),15,4075,0,4095);;
+          ADSR1_attack = map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR1_decay = map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ;
+          ADSR1_sustain = map(constrain(word(byteArray[4], byteArray[5]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR1_release = map(constrain(word(byteArray[6], byteArray[7]), 15, 4075), 15, 4075, 0, 4095);
+          ;
           break;
         }
       case 'b':
@@ -461,10 +227,13 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR2_attack = map(constrain(word(byteArray[0], byteArray[1]),20,4075),20,4075,5,4095);;
-          ADSR2_decay = map(constrain(word(byteArray[2], byteArray[3]),20,4075),20,4075,0,4095);;
-          ADSR2_sustain = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
-          ADSR2_release = map(constrain(word(byteArray[6], byteArray[7]),20,4075),20,4075,13,4095);;
+          ADSR2_attack = map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
+          ;
+          ADSR2_decay = map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ;
+          ADSR2_sustain = map(constrain(word(byteArray[4], byteArray[5]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR2_release = map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
+          ;
           break;
         }
       case 'c':
@@ -472,10 +241,13 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR3_attack = map(constrain(word(byteArray[0], byteArray[1]),20,4075),20,4075,5,4095);;
-          ADSR3_decay = map(constrain(word(byteArray[2], byteArray[3]),20,4075),20,4075,0,4095);;
-          ADSR3_sustain = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
-          ADSR3_release = map(constrain(word(byteArray[6], byteArray[7]),20,4075),20,4075,13,4095);;
+          ADSR3_attack = map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
+          ;
+          ADSR3_decay = map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ;
+          ADSR3_sustain = map(constrain(word(byteArray[4], byteArray[5]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR3_release = map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
+          ;
           break;
         }
       case 'd':
@@ -483,10 +255,10 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          CUTOFF = map(constrain(word(byteArray[0], byteArray[1]),20, 4075),20,4075,0,4095);
-          RESONANCE = map(constrain(word(byteArray[2], byteArray[3]),20, 4075),20,4075,0,4095);
-          ADSR2toVCF = map(constrain(word(byteArray[4], byteArray[5]),20, 4075),20,4075,0,4095);
-          LFO2toVCF = map(constrain(word(byteArray[6], byteArray[7]),20, 4075),20,4075,0,4095);
+          CUTOFF = map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
+          RESONANCE = map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR2toVCF = map(constrain(word(byteArray[4], byteArray[5]), 20, 4075), 20, 4075, 0, 4095);
+          LFO2toVCF = map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 0, 4095);
           formula_update(4);
           formula_update(2);
           break;
@@ -496,7 +268,7 @@ void read_serial_8() {
           byte byteArray[2];
           Serial8.readBytes(byteArray, 2);
 
-          ADSR1toVCA = map(constrain(word(byteArray[0], byteArray[1]),20, 4075),20,4075,0,4095);
+          ADSR1toVCA = map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
           break;
         }
       case 'f':
@@ -504,32 +276,10 @@ void read_serial_8() {
           byte byteArray[2];
           Serial8.readBytes(byteArray, 2);
 
-          PW = map(constrain(word(byteArray[0], byteArray[1]),20, 4075),20,4075,0,4095);
+          PW = map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
           break;
         }
-      case 'n':
-        {
-          byte byteArray[3];
-          while (Serial8.available() < 3) {}
-          Serial8.readBytes(byteArray, 3);
 
-          byte voice_n = byteArray[0];
-          velocity[voice_n] = byteArray[1];
-          note[voice_n] = byteArray[2];
-
-          noteStart[voice_n] = 1;
-          noteEnd[voice_n] = 0;
-          break;
-        }
-      case 'o':
-        {
-          byte voice_n;
-          while (Serial8.available() < 1) {}
-          voice_n = Serial8.read();
-          noteEnd[voice_n] = 1;
-          noteStart[voice_n] = 0;
-          break;
-        }
       case 'p':
         {
           byte paramBytes[3];
@@ -571,47 +321,20 @@ void read_serial_8() {
           update_parameters(paramNumber, (uint16_t)paramValue);
           break;
         }
-      case 'z':
+      case 'q':
         {
-          // if (commandCharacter == 'v') //based on the command character, we decide what to do
-          byte dataArray[2];
+          byte finishByte = 1;
+          byte readByte = 0;
+          byte presetNameBytes[8] = { 32, 32, 32, 32, 32, 32, 32, 32 };
+          while (Serial8.available() < 1) {}
 
-          byte ndata = 0;
-          while (ndata < 2) {
-            //for (byte ndata = 0; ndata < 122; ndata++)
-            if (Serial8.available() > 0) {
-              dataArray[ndata] = Serial8.read();
-              ndata++;
-            }
+          Serial8.readBytes(presetNameBytes, 8);
+          for (int i = 0; i < 8; i++) {
+            presetName[i] = presetNameBytes[i];
           }
-          uint16_t a;
-          ((uint8_t *)&a)[0] = dataArray[0];
-          ((uint8_t *)&a)[1] = dataArray[1];
-          //Serial.println(" raw ");
-          //Serial.println(a);
-
-          break;
-        }
-      case 'g':
-        {
-          byte dataArray[4];
-
-          byte ndata = 0;
-          while (ndata < 4) {
-            //for (byte ndata = 0; ndata < 122; ndata++)
-            //if (Serial8.available() > 0) {
-            while (Serial8.available() < 1) {}
-            dataArray[ndata] = Serial8.read();
-            ndata++;
-            //}
+          while (readByte != finishByte) {
+            readByte = Serial8.read();
           }
-          float a;
-          ((uint8_t *)&a)[0] = dataArray[0];
-          ((uint8_t *)&a)[1] = dataArray[1];
-          ((uint8_t *)&a)[2] = dataArray[2];
-          ((uint8_t *)&a)[3] = dataArray[3];
-
-          freq = a;
           break;
         }
     }
