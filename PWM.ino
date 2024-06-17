@@ -68,7 +68,7 @@ void setPWMOuts() {
   }
   for (byte i = 0; i < NUM_VOICES; i++) {
     VCA_PWM[i] = 4095 - (map((int)constrain((((float)ADSR1Level[i] * ADSR1toVCA_formula /* * (1.27 - (velocityToVCA * (127 - velocity[i])))*/) + ((float)LFO1Level * LFO1toVCA_formula) /*+ ((float)LFO2Level / 512 * LFO2toVCA)*/ + VCALevel /*+ RANDOMNESS1 + RANDOMNESS2*/), 0, 4095), 0, 4095, 0, 1820) * VCAResonanceCompensation);
-    VCA_PWM[i] = lin_to_log_table[ADSR1Level[i]];
+    VCA_PWM[i] = AS2164_VCA_linearize_table[ADSR1Level[i]];
   }
   // VCA_PWM[0] = 4095 - ADSR1Level[0] - VCALevel;
   // VCA_PWM[1] = 4095 - ADSR1Level[1] - VCALevel;

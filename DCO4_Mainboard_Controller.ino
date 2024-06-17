@@ -69,7 +69,12 @@ void setup() {
 
   init_ADSR();
 
+#ifdef ENABLE_SCREEN
   initScreen();
+#endif
+
+  //init tables:
+  generateBezierArray({ 0, 4095 }, { 4095, 0 }, { 150, 1420 }, { -235, 815 }, 4096, AS2164_VCA_linearize_table);
 
   init_waveSelector();
 
@@ -80,7 +85,7 @@ void setup() {
 #endif
 
   initEEPROM();
-  
+
   //initAutotune();
 
 #ifdef ENABLE_SERIAL
@@ -131,7 +136,7 @@ void loop() {
   millisTimer();
 
   if (timer223microsFlag) {
-  //  sendDetune2Flag = true;  // myabe obsolete
+    //  sendDetune2Flag = true;  // myabe obsolete
     read_serial_1();
     read_serial_8();
   }
@@ -162,7 +167,7 @@ void loop() {
   ADSR_update();
 
   setPWMOuts();
-    
+
   sendSerial();
 
 

@@ -74,7 +74,7 @@ int16_t ADSR3toSQR2;
 int16_t ADSR3toSUB;
 
 
-// adsr(maxVal for example 4095, not used, not used, bool linear, atacck curve, decay_release curve)
+// adsr(maxVal for example 4095, not used, not used, bool linear, attack curve, decay_release curve)
 adsr adsr1_voice_0(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2, false,1,2); adsr adsr2_voice_0(ADSR_2_CC, ADSR2_curve1, ADSR2_curve2,false,4,2); adsr adsr3_voice_0(ADSR_3_CC, ADSR3_curve1, ADSR3_curve2, false,0,0);
 adsr adsr1_voice_1(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2, false,1,2); adsr adsr2_voice_1(ADSR_2_CC, ADSR2_curve1, ADSR2_curve2,false,4,2); adsr adsr3_voice_1(ADSR_3_CC, ADSR3_curve1, ADSR3_curve2, false,0,0);
 adsr adsr1_voice_2(ADSR_1_CC, ADSR1_curve1, ADSR1_curve2, false,1,2); adsr adsr2_voice_2(ADSR_2_CC, ADSR2_curve1, ADSR2_curve2,false,4,2); adsr adsr3_voice_2(ADSR_3_CC, ADSR3_curve1, ADSR3_curve2, false,0,0);

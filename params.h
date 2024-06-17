@@ -48,8 +48,8 @@ uint8_t presetSelectVal = 0;
 byte presetChar = 0;
 byte charSelectVal = 0;
 
-byte presetNameVal[17] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
-byte loadedName[17];
+byte presetNameVal[12] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
+byte loadedName[12];
 
 bool funcKeyOn = false;
 
@@ -110,7 +110,7 @@ float VCFKeytrackPerVoice[NUM_VOICES];
 byte oscSyncMode = 0;
 byte voiceMode = 0;
 
-byte presetName[17] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
+byte presetName[12] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
 String presetNameString;
 byte currentPreset;
 
