@@ -164,12 +164,25 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       serialSendParamToDCO[1] = paramValue;
       break;
     case 48:
-      // = paramValue " ADSR1 Curve";
+      // = paramValue " ADSR1 Attack Curve";
+      ADSR1AttackCurveVal = paramValue;
+      ADSR1_change_attack_curve(ADSR1AttackCurveVal);
       break;
     case 49:
-      // = paramValue " ADSR2 Curve";
+      // = paramValue " ADSR1 Decay Curve";
+      ADSR1DecayCurveVal = paramValue;
+      ADSR1_change_decay_curve(ADSR1DecayCurveVal);
       break;
-
+        case 50:
+      // = paramValue " ADSR1 Attack Curve";
+      ADSR2AttackCurveVal = paramValue;
+      ADSR2_change_attack_curve(ADSR2AttackCurveVal);
+      break;
+    case 51:
+      // = paramValue " ADSR2 Decay Curve";
+      ADSR2DecayCurveVal = paramValue;
+      ADSR2_change_decay_curve(ADSR2DecayCurveVal);
+      break;
     case 124:
       PWMPotsControlManual = paramValue;
       serialSendParamByteToDCO[0] = paramNumber;

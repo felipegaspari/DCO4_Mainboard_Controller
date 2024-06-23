@@ -136,7 +136,6 @@ void loop() {
   millisTimer();
 
   if (timer223microsFlag) {
-    //  sendDetune2Flag = true;  // myabe obsolete
     read_serial_1();
     read_serial_8();
   }
@@ -158,8 +157,6 @@ void loop() {
 
   read_serial_2();
 
-  if (timer99microsFlag == 1) {
-  }
 
   LFO1();
   LFO2();
@@ -168,8 +165,9 @@ void loop() {
 
   setPWMOuts();
 
-  sendSerial();
-
+  if (timer99microsFlag == 1) {
+    sendSerial();
+}
 
   //unsigned long tiempodeejecuciontotal = micros() - loopStartTime;
 
