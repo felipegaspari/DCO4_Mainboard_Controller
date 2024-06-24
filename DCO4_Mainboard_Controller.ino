@@ -84,7 +84,7 @@ void setup() {
 //init_BU2505FV();
 #endif
 
-  initEEPROM();
+//  initEEPROM();
 
   //initAutotune();
 
