@@ -14,30 +14,30 @@ void update_waveSelector(byte wave) {
   switch (wave) {
     case 0:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sawPins[i], sawStatus);
+        waveSelectorMux.writePin(sawPins[i], !sawStatus);
       }
       break;
     case 1:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(saw2Pins[i], saw2Status);
+        waveSelectorMux.writePin(saw2Pins[i], !saw2Status);
       }
       break;
     case 2:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(triPins[i], triStatus);
+        waveSelectorMux.writePin(triPins[i], !triStatus);
       }
       break;
     case 3:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sinePins[i], sineStatus);
+        waveSelectorMux.writePin(sinePins[i], !sineStatus);
       }
       break;
     case 4:  // Update All
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sawPins[i], sawStatus);
-        waveSelectorMux.writePin(saw2Pins[i], saw2Status);
-        waveSelectorMux.writePin(triPins[i], triStatus);
-        waveSelectorMux.writePin(sinePins[i], sineStatus);
+        waveSelectorMux.writePin(sawPins[i], !sawStatus);
+        waveSelectorMux.writePin(saw2Pins[i], !saw2Status);
+        waveSelectorMux.writePin(triPins[i], !triStatus);
+        waveSelectorMux.writePin(sinePins[i], !sineStatus);
       }
       break;
     default:

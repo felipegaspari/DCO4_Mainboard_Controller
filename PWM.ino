@@ -128,6 +128,11 @@ void setPWMOuts() {
   //TEST MOTHERBOARD:
   //RESO/VCF
 
+//  htim4->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);
+//  htim8->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);
+//  htim5->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);
+//  htim3->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);
+
   htim15->setCaptureCompare(2, RESONANCE, TICK_COMPARE_FORMAT);         //RESO1
   htim2->setCaptureCompare(3, 4095 - VCA_PWM[0], TICK_COMPARE_FORMAT);  //RESO2
   htim3->setCaptureCompare(3, 4095 - VCA_PWM[0], TICK_COMPARE_FORMAT);  //RESO3
@@ -159,7 +164,7 @@ void setPWMOuts() {
   htim12->setCaptureCompare(2, VCF_PWM[3], TICK_COMPARE_FORMAT);  //  CONFLICT WITH SPI PIN !!
 #endif
 
-// SQUARE PW
+SQUARE PW
 #ifndef ENABLE_SPI
   htim3->setCaptureCompare(2, PW_PWM[0], TICK_COMPARE_FORMAT);
   htim2->setCaptureCompare(2, PW_PWM[0], TICK_COMPARE_FORMAT);

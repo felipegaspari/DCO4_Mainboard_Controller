@@ -101,7 +101,7 @@ void setup() {
   Serial8.begin(2500000);
 #endif
 
-  serial_send_preset_scroll(currentPreset, presetName);
+  //serial_send_preset_scroll(currentPreset, presetName);
 
   noteStart[0] = 0;
   noteEnd[0] = 1;
