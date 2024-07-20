@@ -29,7 +29,7 @@ void update_waveSelector(byte wave) {
       break;
     case 3:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sinePins[i], !sineStatus);
+        waveSelectorMux.writePin(sinePins[i], !sqr2Status);
       }
       break;
     case 4:  // Update All
@@ -37,7 +37,7 @@ void update_waveSelector(byte wave) {
         waveSelectorMux.writePin(sawPins[i], !sawStatus);
         waveSelectorMux.writePin(saw2Pins[i], !saw2Status);
         waveSelectorMux.writePin(triPins[i], !triStatus);
-        waveSelectorMux.writePin(sinePins[i], !sineStatus);
+        waveSelectorMux.writePin(sinePins[i], !sqr2Status);
       }
       break;
     default:

@@ -62,6 +62,9 @@ int16_t SQR2LevelVal;
 int16_t SubLevelVal;
 
 int16_t unisonDetune;
+int8_t analogDrift;
+int16_t analogDriftSpeed;
+int8_t analogDriftSpread;
 
 int16_t VCALevelVal;
 

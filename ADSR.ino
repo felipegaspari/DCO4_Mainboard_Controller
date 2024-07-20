@@ -1,4 +1,7 @@
 void init_ADSR() {
+
+  adsrCreateTables(4095, ARRAY_SIZE);
+
   for (int i = 0; i < NUM_VOICES; i++) {
     ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack);    // initialize attack
     ADSRVoices[i].adsr1_voice.setDecay(ADSR1_decay);      // initialize decay
@@ -33,7 +36,7 @@ void ADSR_update() {
       ADSRVoices[i].adsr1_voice.setDecay(ADSR1_decay * 1000);
       ADSRVoices[i].adsr1_voice.setRelease(ADSR1_release * 1000);
       ADSRVoices[i].adsr1_voice.noteOn(tADSR);
-      
+
       ADSRVoices[i].adsr2_voice.noteOff(tADSR - 1);
       ADSRVoices[i].adsr2_voice.setAttack(ADSR2_attack * 1000);
       ADSRVoices[i].adsr2_voice.setDecay(ADSR2_decay * 1000);
@@ -79,7 +82,7 @@ void ADSR2_set_restart() {
 
 void ADSR1_change_attack_curve(uint8_t adsrCurveAttack) {
   for (int i = 0; i < NUM_VOICES; i++) {
-    ADSRVoices[i].adsr1_voice.adsrCurveAttack(adsrCurveAttack, ADSR_1_CC, ARRAY_SIZE);
+    ADSRVoices[i].adsr1_voice.adsrCurveAttack(adsrCurveAttack);
     ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack);    // initialize attack
     ADSRVoices[i].adsr1_voice.setDecay(ADSR1_decay);      // initialize decay
     ADSRVoices[i].adsr1_voice.setSustain(ADSR1_sustain);  // initialize sustain
@@ -91,7 +94,19 @@ void ADSR1_change_attack_curve(uint8_t adsrCurveAttack) {
 void ADSR1_change_decay_curve(uint8_t adsrCurveDecay) {
   for (int i = 0; i < NUM_VOICES; i++) {
     //ADSRVoices[i].adsr1_voice.changeCurves(ADSR_1_DACSIZE, ADSR1_curve1, ADSR1_curve2);
-    ADSRVoices[i].adsr1_voice.adsrCurveDecayRelease(adsrCurveDecay, ADSR_1_CC, ARRAY_SIZE);
+    ADSRVoices[i].adsr1_voice.adsrCurveDecay(adsrCurveDecay);
+    ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack);    // initialize attack
+    ADSRVoices[i].adsr1_voice.setDecay(ADSR1_decay);      // initialize decay
+    ADSRVoices[i].adsr1_voice.setSustain(ADSR1_sustain);  // initialize sustain
+    ADSRVoices[i].adsr1_voice.setRelease(ADSR1_release);
+    ADSRVoices[i].adsr1_voice.setResetAttack(VCAADSRRestart);
+  }
+}
+
+void ADSR1_change_release_curve(uint8_t adsrCurveRelease) {
+  for (int i = 0; i < NUM_VOICES; i++) {
+    //ADSRVoices[i].adsr1_voice.changeCurves(ADSR_1_DACSIZE, ADSR1_curve1, ADSR1_curve2);
+    ADSRVoices[i].adsr1_voice.adsrCurveRelease(adsrCurveRelease);
     ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack);    // initialize attack
     ADSRVoices[i].adsr1_voice.setDecay(ADSR1_decay);      // initialize decay
     ADSRVoices[i].adsr1_voice.setSustain(ADSR1_sustain);  // initialize sustain
@@ -102,7 +117,7 @@ void ADSR1_change_decay_curve(uint8_t adsrCurveDecay) {
 
 void ADSR2_change_attack_curve(uint8_t adsrCurveAttack) {
   for (int i = 0; i < NUM_VOICES; i++) {
-    ADSRVoices[i].adsr2_voice.adsrCurveAttack(adsrCurveAttack, ADSR_2_CC, ARRAY_SIZE);
+    ADSRVoices[i].adsr2_voice.adsrCurveAttack(adsrCurveAttack);
     ADSRVoices[i].adsr2_voice.setAttack(ADSR2_attack);    // initialize attack
     ADSRVoices[i].adsr2_voice.setDecay(ADSR2_decay);      // initialize decay
     ADSRVoices[i].adsr2_voice.setSustain(ADSR2_sustain);  // initialize sustain
@@ -113,7 +128,18 @@ void ADSR2_change_attack_curve(uint8_t adsrCurveAttack) {
 
 void ADSR2_change_decay_curve(uint8_t adsrCurveDecay) {
   for (int i = 0; i < NUM_VOICES; i++) {
-    ADSRVoices[i].adsr2_voice.adsrCurveDecayRelease(adsrCurveDecay, ADSR_2_CC, ARRAY_SIZE);
+    ADSRVoices[i].adsr2_voice.adsrCurveDecay(adsrCurveDecay);
+    ADSRVoices[i].adsr2_voice.setAttack(ADSR2_attack);    // initialize attack
+    ADSRVoices[i].adsr2_voice.setDecay(ADSR2_decay);      // initialize decay
+    ADSRVoices[i].adsr2_voice.setSustain(ADSR2_sustain);  // initialize sustain
+    ADSRVoices[i].adsr2_voice.setRelease(ADSR2_release);
+    ADSRVoices[i].adsr2_voice.setResetAttack(VCFADSRRestart);
+  }
+}
+
+void ADSR2_change_release_curve(uint8_t adsrCurveRelease) {
+  for (int i = 0; i < NUM_VOICES; i++) {
+    ADSRVoices[i].adsr2_voice.adsrCurveRelease(adsrCurveRelease);
     ADSRVoices[i].adsr2_voice.setAttack(ADSR2_attack);    // initialize attack
     ADSRVoices[i].adsr2_voice.setDecay(ADSR2_decay);      // initialize decay
     ADSRVoices[i].adsr2_voice.setSustain(ADSR2_sustain);  // initialize sustain

@@ -14,7 +14,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 4:
       sineStatus = paramValue;
-      update_waveSelector(3);
+      //update_waveSelector(3);
       break;
     case 5:
       sqr1Status = paramValue;
@@ -22,7 +22,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 6:
       sqr2Status = paramValue;
-      //update_waveSelector(5);
+      update_waveSelector(3);
       break;
     case 7:
       RESONANCEAmpCompensation = paramValue;
@@ -37,50 +37,59 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 10:
       ADSR3ToOscSelect = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 11:
       LFO1Waveform = paramValue;
       LFO1_class.setWaveForm(LFO1Waveform);
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 12:
       LFO2Waveform = paramValue;
       LFO2_class.setWaveForm(LFO2Waveform);
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 13:
       OSC1Interval = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 14:
       OSC2Interval = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 15:
       OSC2Detune = paramValue;
-      serialSendParamToDCO[0] = paramNumber;
-      serialSendParamToDCO[1] = paramValue;
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 16:
       LFO2toOSC2DETUNE = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = (byte)paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 17:
       oscSyncMode = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 18:
       portamentoTime = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 19:
       VCFKeytrack = paramValue;
@@ -115,53 +124,81 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 26:
       voiceMode = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 27:
       unisonDetune = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
 
+    case 28:
+      analogDrift = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+
+    case 29:
+      analogDriftSpeed = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+
+    case 30:
+      analogDriftSpread = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
 
     case 40:
       LFO1toDCOVal = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 41:
       LFO1SpeedVal = paramValue;
       controls_formula_update(1);
-      serialSendParamToDCO[0] = paramNumber;
-      serialSendParamToDCO[1] = paramValue;
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 42:
       LFO2SpeedVal = paramValue;
       controls_formula_update(2);
-      serialSendParamToDCO[0] = paramNumber;
-      serialSendParamToDCO[1] = paramValue;
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 43:
-      VCALevel = paramValue * 32;
+      VCALevel = constrain(paramValue * 32, 0, 4095);
       break;
     case 44:
       LFO1toVCA = paramValue;
       break;
     case 45:
       LFO2toPWM = paramValue;
-      serialSendParamToDCO[0] = paramNumber;
-      serialSendParamToDCO[1] = paramValue;
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 46:
       ADSR3toPWM = paramValue - 512;
-      serialSendParamToDCO[0] = paramNumber;
-      serialSendParamToDCO[1] = paramValue;
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 47:
       ADSR3toDETUNE1 = paramValue;
-      serialSendParamToDCO[0] = paramNumber;
-      serialSendParamToDCO[1] = paramValue;
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 48:
       // = paramValue " ADSR1 Attack Curve";
@@ -173,7 +210,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       ADSR1DecayCurveVal = paramValue;
       ADSR1_change_decay_curve(ADSR1DecayCurveVal);
       break;
-        case 50:
+    case 50:
       // = paramValue " ADSR1 Attack Curve";
       ADSR2AttackCurveVal = paramValue;
       ADSR2_change_attack_curve(ADSR2AttackCurveVal);
@@ -185,8 +222,9 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       break;
     case 124:
       PWMPotsControlManual = paramValue;
-      serialSendParamByteToDCO[0] = paramNumber;
-      serialSendParamByteToDCO[1] = paramValue;
+      //serialSendParamByteToDCO[0] = paramNumber;
+      //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 126:
       ADSR3Enabled = paramValue;
@@ -194,23 +232,23 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
     case 127:
       //= paramValue " FUNCTION KEY";
       break;
-    // case 140:                         // scroll preset
-    //   {
-    //     byte presetNameScroll[12];
-    //     get_preset_name(paramValue, presetNameScroll);
-    //     serial_send_preset_scroll(paramValue, presetNameScroll);
-    //     break;
-    //   }
-    // case 141:                         // load preset
-    //   {
-    //     loadPreset(paramValue);
-    //     serial_send_preset_scroll(paramValue, presetName);
-    //     break;
-    //   }
-    // case 142:  //  write preset
-    //   writePreset(paramValue);
-    //   serial_send_signal(5);
-    //   break;
+      // case 140:                         // scroll preset
+      //   {
+      //     byte presetNameScroll[12];
+      //     get_preset_name(paramValue, presetNameScroll);
+      //     serial_send_preset_scroll(paramValue, presetNameScroll);
+      //     break;
+      //   }
+      // case 141:                         // load preset
+      //   {
+      //     loadPreset(paramValue);
+      //     serial_send_preset_scroll(paramValue, presetName);
+      //     break;
+      //   }
+      // case 142:  //  write preset
+      //   writePreset(paramValue);
+      //   serial_send_signal(5);
+      //   break;
 
       // case 101:
       //   = paramValue " CALIB MODE";

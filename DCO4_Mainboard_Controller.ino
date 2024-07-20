@@ -66,6 +66,7 @@ void setup() {
   init_timers();
 
   init_LFOs();
+  init_DRIFT_LFOs();
 
   init_ADSR();
 
@@ -84,7 +85,7 @@ void setup() {
 //init_BU2505FV();
 #endif
 
-//  initEEPROM();
+  //  initEEPROM();
 
   //initAutotune();
 
@@ -151,15 +152,16 @@ void loop() {
     if (PWMPotsControlManual) {
       serialSendPWFlag = true;
     }
+    DRIFT_LFOs();
     // formula_update(4);
     // formula_update(2);
   }
 
   read_serial_2();
 
-
   LFO1();
   LFO2();
+
 
   ADSR_update();
 
@@ -167,7 +169,7 @@ void loop() {
 
   if (timer99microsFlag == 1) {
     sendSerial();
-}
+  }
 
   //unsigned long tiempodeejecuciontotal = micros() - loopStartTime;
 
