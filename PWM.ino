@@ -88,8 +88,8 @@ void setPWMOuts() {
   // /* ***************************           VCF PWM          *****************************/
   for (byte i = 0; i < NUM_VOICES; i++) {
     if (timer1msFlag) {
-      if (VCFKeytrack > 0) {
-        VCFKeytrackPerVoice[i] = 1 + (VCFKeytrackModifier * map(note[i], 0, 150, -60, 90));
+      if (VCFKeytrack != 0) {
+        VCFKeytrackPerVoice[i] = 1.00f + (float)(VCFKeytrackModifier * map(note[i], 0, 150, -60, 90));
         // DEBUG KEYTRACK
         //Serial.println((String)"VOICE N: " + i +  (String)"    VCFKeytrackPerVoice: " + VCFKeytrackPerVoice[i] + (String)"    VCFKeytrackModifier: " + VCFKeytrackModifier + (String)"    VCFKeytrack: " + VCFKeytrack);
       } else {

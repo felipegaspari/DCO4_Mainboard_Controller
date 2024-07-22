@@ -92,7 +92,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
     case 19:
-      VCFKeytrack = paramValue;
+      VCFKeytrack = (int16_t)paramValue;
       formula_update(1);
       break;
     case 20:
@@ -153,6 +153,10 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       analogDriftSpread = paramValue;
       //serialSendParamByteToDCO[0] = paramNumber;
       //serialSendParamByteToDCO[1] = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+
+    case 31:  // syncMode
       serialSendParamByteToDCOFunction(paramNumber, paramValue);
       break;
 

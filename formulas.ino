@@ -12,8 +12,8 @@
 void formula_update(byte formulaN) {
   switch (formulaN) {
     case 1:
-      if (VCFKeytrack > 0) {
-        VCFKeytrackModifier = (float)VCFKeytrack / 8000;
+      if (VCFKeytrack != 0) {
+        VCFKeytrackModifier = (float)VCFKeytrack / 8000.00f;
       } else {
         VCFKeytrackModifier = 1;
       }

@@ -107,7 +107,7 @@ bool RESONANCEAmpCompensation = true;
 bool VCFADSRRestart = true;
 bool VCAADSRRestart = true;
 
-byte VCFKeytrack = 0;
+int16_t VCFKeytrack = 0;
 float VCFKeytrackModifier = 1;
 float VCFKeytrackPerVoice[NUM_VOICES];
 byte oscSyncMode = 0;
