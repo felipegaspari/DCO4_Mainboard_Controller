@@ -176,6 +176,33 @@ void sendSerial() {
   }
 }
 
+void serial_send_param_change(byte param, uint16_t paramValue) {
+
+  byte bytesArray[5] = { (uint8_t)'p', param, highByte(paramValue), lowByte(paramValue), finishByte };
+#ifdef ENABLE_SERIAL1
+  while (Serial1.availableForWrite() < 5) {}
+  Serial1.write(bytesArray, 5);
+#endif
+}
+
+void serialSendParam32ToDCO(byte paramNumber, uint32_t paramValue) {
+
+uint8_t *b = (uint8_t *)&paramValue;
+
+  byte bytesArray[7] = { (uint8_t)'x', paramNumber, b[0], b[1], b[2], b[3], finishByte };
+  while (Serial2.availableForWrite() < 7) {}
+  Serial2.write(bytesArray, 7);
+}
+
+void serialSendParam32ToScreen(byte paramNumber, uint32_t paramValue) {
+
+uint8_t *b = (uint8_t *)&paramValue;
+
+  byte bytesArray[7] = { (uint8_t)'x', paramNumber, b[0], b[1], b[2], b[3], finishByte };
+  while (Serial1.availableForWrite() < 7) {}
+  Serial1.write(bytesArray, 7);
+}
+
 void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
 {
  while(Serial2.availableForWrite() < 4) {};

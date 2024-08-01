@@ -165,7 +165,12 @@ void loop() {
 
   ADSR_update();
 
-  setPWMOuts();
+  
+  if (manualCalibrationFlag == false) {
+    setPWMOuts();
+  } else {
+    setPWMOutsManualCalibration();
+  }
 
   if (timer99microsFlag == 1) {
     sendSerial();

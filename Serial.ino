@@ -26,7 +26,7 @@ void sendOK() {
 
 void serial_send_calibration_mode() {
   byte calibrationModeByte;
-  if (calibrationMode) {
+  if (calibrationFlag) {
     calibrationModeByte = 255;
   } else {
     calibrationModeByte = 222;
@@ -46,14 +46,7 @@ void serial_send_signal(byte signal) {
 #endif
 }
 
-void serial_send_param_change(byte param, uint16_t paramValue) {
 
-  byte bytesArray[5] = { (uint8_t)'p', param, highByte(paramValue), lowByte(paramValue), finishByte };
-#ifdef ENABLE_SERIAL1
-  while (Serial1.availableForWrite() < 5) {}
-  Serial1.write(bytesArray, 5);
-#endif
-}
 
 void serial_send_preset_scroll(byte presetNumber, byte presetNameSerial[]) {
 
@@ -96,29 +89,30 @@ void read_serial_1() {
         //   }
         //   break;
         // }
-      // case 's':
-      //   {
-      //     while (Serial1.available() < 1) {}
-      //     serialSignal = Serial1.read();
-      //     switch(serialSignal) {
-      //       case 0:
-      //       break;
-      //       case 1:
-      //       break;
-      //       case 2:
-      //       break;
-      //       case 3:
-      //       break;
-      //       case 4:
-      //       // should get the number to save
-      //       break;
-      //       case 5:
-      //       writePreset(0);
-      //       break;
-      //     }
+        // case 's':
+        //   {
+        //     while (Serial1.available() < 1) {}
+        //     serialSignal = Serial1.read();
+        //     switch(serialSignal) {
+        //       case 0:
+        //       break;
+        //       case 1:
+        //       break;
+        //       case 2:
+        //       break;
+        //       case 3:
+        //       break;
+        //       case 4:
+        //       // should get the number to save
+        //       break;
+        //       case 5:
+        //       writePreset(0);
+        //       break;
+        //     }
 
-      //     break;
-      //   }
+        //     break;
+        //   }
+
       default:
         break;
     }
@@ -196,6 +190,44 @@ void read_serial_2() {
           update_parameters(paramNumber, (uint16_t)paramValue);
           break;
         }
+      case 'x':
+        {
+          byte paramBytes[5];
+          byte paramValueArray[4];
+          byte finishByte = 1;
+          byte readByte = 0;
+          uint32_t paramValue32;
+
+          while (Serial2.available() < 1) {}
+
+          Serial2.readBytes(paramBytes, 5);
+
+          while (readByte != finishByte) {
+            readByte = Serial2.read();
+          }
+
+          uint8_t paramNumber = paramBytes[0];
+          paramValueArray[0] = paramBytes[1];
+          paramValueArray[1] = paramBytes[2];
+          paramValueArray[2] = paramBytes[3];
+          paramValueArray[3] = paramBytes[4];
+
+          memcpy(&paramValue32, paramValueArray, 4);
+
+          update_parameters(paramNumber, (int32_t)paramValue32);
+          break;
+        }
+        // case 'g':
+        //   {
+        //     byte byteArray[4];
+        //     while (Serial2.available() < 4) {}
+        //     Serial2.readBytes(byteArray, 4);
+        //     float receivedValueFloat;
+        //     memcpy (&receivedValueFloat, byteArray, 4);
+
+        //     //serial_send_param_change_32(154, (uint32_t)receivedValueFloat);
+        //     break;
+        //   }
     }
   }
 #endif
@@ -214,8 +246,8 @@ void read_serial_8() {
 
 
           //MAP AND CONSTRAIN functions should be implemented on the input board.
-          ADSR1_attack =  word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
-          ADSR1_decay =   word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR1_attack = word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR1_decay = word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
           ADSR1_sustain = word(byteArray[4], byteArray[5]);
           ADSR1_release = word(byteArray[6], byteArray[7]);  //map(constrain(word(byteArray[6], byteArray[7]), 15, 4075), 15, 4075, 0, 4095);
           break;
@@ -225,8 +257,8 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR2_attack =  word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
-          ADSR2_decay =   word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR2_attack = word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
+          ADSR2_decay = word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
           ADSR2_sustain = word(byteArray[4], byteArray[5]);
           ADSR2_release = word(byteArray[6], byteArray[7]);  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
           break;
@@ -236,8 +268,8 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR3_attack =  word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
-          ADSR3_decay =   word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR3_attack = word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
+          ADSR3_decay = word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
           ADSR3_sustain = word(byteArray[4], byteArray[5]);
           ADSR3_release = word(byteArray[6], byteArray[7]);  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
           break;
@@ -247,10 +279,10 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          CUTOFF =      word(byteArray[0], byteArray[1]);
-          RESONANCE =   word(byteArray[2], byteArray[3]);
-          ADSR2toVCF =  word(byteArray[4], byteArray[5]);
-          LFO2toVCF =   word(byteArray[6], byteArray[7]);
+          CUTOFF = word(byteArray[0], byteArray[1]);
+          RESONANCE = word(byteArray[2], byteArray[3]);
+          ADSR2toVCF = word(byteArray[4], byteArray[5]);
+          LFO2toVCF = word(byteArray[6], byteArray[7]);
           formula_update(4);
           formula_update(2);
           break;

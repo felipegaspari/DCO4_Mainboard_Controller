@@ -90,8 +90,9 @@ int16_t LFO3toVCFVal;
 int8_t ADSR3ToOscSelect;
 
 int16_t calibrationVal;
-bool calibrationMode = false;
-//
+bool calibrationFlag = false;
+bool manualCalibrationFlag = false;
+int8_t manualCalibrationStage = 0;
 
 float velocityToVCF = 0;
 float velocityToVCA = 0;

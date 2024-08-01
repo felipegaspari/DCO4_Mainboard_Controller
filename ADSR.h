@@ -46,9 +46,9 @@ void adsrCreateTables(float maxVal, int numPoints) {
 }
 
 
-static const uint16_t ADSR_1_CC = 4095;
-static const uint16_t ADSR_2_CC = 4095;
-static const uint16_t ADSR_3_CC = 4095;
+static constexpr uint16_t ADSR_1_CC = 4095;
+static constexpr uint16_t ADSR_2_CC = 4095;
+static constexpr uint16_t ADSR_3_CC = 4095;
 
 float ADSRMaxLevel = ADSR_1_CC;
 

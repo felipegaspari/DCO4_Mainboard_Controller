@@ -1,4 +1,4 @@
-void update_parameters(byte paramNumber, int16_t paramValue) {
+void update_parameters(byte paramNumber, int32_t paramValue) {
   switch (paramNumber) {
     case 1:
       sawStatus = paramValue;
@@ -236,6 +236,27 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
     case 127:
       //= paramValue " FUNCTION KEY";
       break;
+
+    case 150:
+      calibrationFlag = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+    case 151:
+      manualCalibrationFlag = paramValue;
+      calibrationFlag = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+    case 152:
+      manualCalibrationStage = (uint8_t)paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+    case 153:  // manual calibration offset
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      break;
+    case 154:  // gap from DCO
+      serialSendParam32ToScreen(paramNumber, (int32_t)paramValue);
+      break;
+
       // case 140:                         // scroll preset
       //   {
       //     byte presetNameScroll[12];
@@ -254,9 +275,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       //   serial_send_signal(5);
       //   break;
 
-      // case 101:
-      //   = paramValue " CALIB MODE";
-      //   break;
+
 
       // case 885:
       //   = paramValue " VOICE MODE";
@@ -277,9 +296,7 @@ void update_parameters(byte paramNumber, int16_t paramValue) {
       // case 994:
       //   = paramValue " ADSR3 Restart";
       //   break;
-      // case 995:
-      //   = paramValue " VCA -> LEVEL";
-      //   break;
+
 
     default:
       break;
