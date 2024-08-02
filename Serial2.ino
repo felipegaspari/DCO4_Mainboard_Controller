@@ -203,6 +203,13 @@ uint8_t *b = (uint8_t *)&paramValue;
   Serial1.write(bytesArray, 7);
 }
 
+void serialSendParamByteToScreen(byte paramNumber, byte paramValue)
+{
+ while(Serial1.availableForWrite() < 4) {};
+  byte bytesArray[4] = {(uint8_t)'y', paramNumber, paramValue, finishByte};
+  Serial1.write(bytesArray, 4);
+}
+
 void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
 {
  while(Serial2.availableForWrite() < 4) {};

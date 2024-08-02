@@ -257,6 +257,31 @@ void update_parameters(byte paramNumber, int32_t paramValue) {
       serialSendParam32ToScreen(paramNumber, (int32_t)paramValue);
       break;
 
+    //    MENU ACTIONS:
+    
+    // case 190:   // MENU POSITION
+    // serialSendParamByteToScreen(paramNumber, paramValue);
+    //   break;
+
+    // case 191:   // 
+    // serialSendParamByteToScreen(paramNumber, paramValue);
+    //   break;
+
+    // case 192:   // 
+    // serialSendParamByteToScreen(paramNumber, paramValue);
+    //   break;
+
+    // case 193:   // 
+    // serialSendParamByteToScreen(paramNumber, paramValue);
+    //   break;
+
+    // case 199:   // EXIT CURRENT MENU
+    // serialSendParamByteToScreen(paramNumber, paramValue);
+    //   break;
+    // case 200:   // CALIBRATION MENU
+    // serialSendParamByteToScreen(paramNumber, paramValue);
+    //   break;
+
       // case 140:                         // scroll preset
       //   {
       //     byte presetNameScroll[12];
