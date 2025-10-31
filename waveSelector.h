@@ -34,15 +34,16 @@ uint8_t saw4_2Pin = 0;
 uint8_t tri4Pin = 0;
 uint8_t sine4Pin = 0;
 
-uint8_t sawPins[4] = { 2, 6, 10, 14 };
-uint8_t saw2Pins[4] = { 1, 5, 9, 13 };
-uint8_t triPins[4] = { 0, 4, 8, 12 };
-uint8_t sinePins[4] = { 3, 7, 11, 15 };
+// ??
+// uint8_t triPins[4] = { 2, 6, 10, 14 };
+// uint8_t sinePins[4] = { 1, 5, 9, 13 };
+// uint8_t saw2Pins[4] = { 0, 4, 8, 12 };
+// uint8_t sawPins[4] = { 3, 7, 11, 15 };
 
-// uint8_t sawPins[4] = { 8, 8, 8, 8 };
-// uint8_t saw2Pins[4] = { 9, 9, 9, 9 };
-// uint8_t triPins[4] = { 10, 10, 10, 10 };
-// uint8_t sinePins[4] = { 11, 11, 11, 11 };
-
+// crossed cables
+uint8_t triPins[4] = { 14, 10, 6, 2 };
+uint8_t sinePins[4] = { 13, 9, 5, 1 };
+uint8_t saw2Pins[4] = { 12, 8, 4, 0 };
+uint8_t sawPins[4] = { 15, 11, 7, 3 };
 
 #endif

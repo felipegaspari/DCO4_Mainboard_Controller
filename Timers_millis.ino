@@ -1,4 +1,4 @@
-void millisTimer() {
+inline void millisTimer() {
 
   timer50microsFlag = 0;
   timer99microsFlag = 0;

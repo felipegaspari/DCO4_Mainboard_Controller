@@ -1,15 +1,40 @@
-#include <adsr.h>
-
 #define NUM_VOICES 4
 
-#define PIN_SAW1 70
-#define PIN_SAW2 70
-#define PIN_TRI 70
-#define PIN_SIN 70
+// PINS reserved for SDMMC: PD2, PC12,PC8, PC9, PC10,PC11
+
+//#define LD_PIN PD_9
+
+//#define ENABLE_SPI
+
+#define ENABLE_SD
+
+#include "Arduino.h"
+#include "params.h"
+#include "auxiliary.h"
+#include "PWM.h"
+#include "ADSR.h"
+#include "LFO.h"
+#include "Timers.h"
+#include "Timers_millis.h"
+#include "Serial.h"
+
+//#include "Screen.h"
+
+#include "flashData.h"
+
+#include "formulas.h"
+#include "tables.h"
+#include "waveSelector.h"
+
+#ifdef ENABLE_SPI
+#include "SPI_settings.h"
+#endif
+
+//#include "autotune.h"
 
 byte OSC1Interval = 24;
 byte OSC2Interval = 24;
-byte OSC2Detune = 127;
+uint16_t OSC2Detune = 255;
 
 float DETUNE1;
 float DETUNE2;
@@ -22,28 +47,6 @@ uint16_t SQR2Level;
 uint16_t RESONANCE;
 uint16_t CUTOFF = 1024;
 uint16_t VCALevel = 0;
-
-//#define ENABLE_SD
-
-#include "Arduino.h"
-#include "params.h"
-#include "auxiliary.h"
-#include "PWM.h"
-#include "ADSR.h"
-#include "LFO.h"
-#include "Timers.h"
-#include "Timers_millis.h"
-#include "Serial.h"
-
-#include "Screen.h"
-
-#include "flashData.h"
-//#include "autotune.h"
-#include "formulas.h"
-#include "waveSelector.h"
-
-
-//static const float clockFreq = 168000000;
 
 uint16_t random1;
 uint16_t random2;
@@ -63,14 +66,31 @@ void setup() {
   init_timers();
 
   init_LFOs();
+  init_DRIFT_LFOs();
 
   init_ADSR();
 
+#ifdef ENABLE_SCREEN
   initScreen();
+#endif
 
-  initEEPROM();
+  // init tables:
+  generateBezierArray({ 0, 4095 }, { 4095, 0 }, { 150, 1420 }, { -235, 815 }, 4096, AS2164_VCA_linearize_table);
+
+  // ADSR Faders Table
+  for (int i = 0; i < LIN_TO_EXP_TABLE_SIZE; i++) {
+    linToExpLookup[i] = linearToExponential(i, 50, maxADSRControlValue);
+  }
 
   init_waveSelector();
+
+  init_MCP4728();
+
+#ifdef ENABLE_SPI
+//init_BU2505FV();
+#endif
+
+  //  initEEPROM();
 
   //initAutotune();
 
@@ -87,11 +107,18 @@ void setup() {
   Serial8.begin(2500000);
 #endif
 
-  serial_send_preset_scroll(currentPreset, presetName);
+  //serial_send_preset_scroll(currentPreset, presetName);
 
   noteStart[0] = 0;
   noteEnd[0] = 1;
 
+  for (int i = 0; i < 10; i++) {
+    formula_update(i);
+    controls_formula_update(i);
+  }
+
+  VCFKeytrack = 0;
+  velocityToVCF = 0;
 }
 
 void loop() {
@@ -113,8 +140,7 @@ void loop() {
 
   millisTimer();
 
-  if (timer99microsFlag) {
-    sendDetune2Flag = true;
+  if (timer223microsFlag) {
     read_serial_1();
     read_serial_8();
   }
@@ -124,29 +150,35 @@ void loop() {
   // }
 
   if (timer1msFlag) {
-    if (ADSR3Enabled && ADSR3toDETUNE1 != 0) {
-      serialSendADSR3ControlValuesFlag = true;
+    // if (ADSR3Enabled) {
+    //   serialSendADSR3ControlValuesFlag = true; // flag is now set when serial data is received
+    // }
+    if (PWMPotsControlManual) {
+      serialSendPWFlag = true;
     }
-    // formula_update(3);
+    DRIFT_LFOs();
+    // formula_update(4);
     // formula_update(2);
   }
 
   read_serial_2();
 
-  if (timer99microsFlag == 1) {
-
-    // LFO1();
-    // LFO2();
-  }
-
   LFO1();
   LFO2();
 
+
   ADSR_update();
 
-  setPWMOuts();
 
-  sendSerial();
+  if (manualCalibrationFlag == false) {
+    setPWMOuts();
+  } else {
+    setPWMOutsManualCalibration();
+  }
+
+  if (timer99microsFlag == 1) {
+    sendSerial();
+  }
 
   //unsigned long tiempodeejecuciontotal = micros() - loopStartTime;
 
@@ -182,7 +214,7 @@ void loop() {
 
 #ifdef ENABLE_SERIAL
   //drawTM(tiempodeejecucion);
-  if (1 == 1) {
+  if (1 == 2) {
     //if ( SPIval == 111) {
     //if (timer99microsFlag) {58
     //if (timer31msFlag) {
