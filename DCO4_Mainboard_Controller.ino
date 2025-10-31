@@ -74,8 +74,13 @@ void setup() {
   initScreen();
 #endif
 
-  //init tables:
+  // init tables:
   generateBezierArray({ 0, 4095 }, { 4095, 0 }, { 150, 1420 }, { -235, 815 }, 4096, AS2164_VCA_linearize_table);
+
+  // ADSR Faders Table
+  for (int i = 0; i < LIN_TO_EXP_TABLE_SIZE; i++) {
+    linToExpLookup[i] = linearToExponential(i, 50, maxADSRControlValue);
+  }
 
   init_waveSelector();
 
@@ -122,7 +127,6 @@ void loop() {
   //  drawTM(potMedian[7]);
   //    }
 
-
   unsigned long loopStartTime = micros();
 
   random1 = random(0, 150);
@@ -146,9 +150,9 @@ void loop() {
   // }
 
   if (timer1msFlag) {
-    if (ADSR3Enabled && ADSR3toDETUNE1 != 0) {
-      serialSendADSR3ControlValuesFlag = true;
-    }
+    // if (ADSR3Enabled) {
+    //   serialSendADSR3ControlValuesFlag = true; // flag is now set when serial data is received
+    // }
     if (PWMPotsControlManual) {
       serialSendPWFlag = true;
     }
@@ -165,7 +169,7 @@ void loop() {
 
   ADSR_update();
 
-  
+
   if (manualCalibrationFlag == false) {
     setPWMOuts();
   } else {

@@ -35,17 +35,17 @@ void init_LFO2() {
   LFO2_class.setMode0Freq(5);   // set LFO to 30 Hz
 }
 
-void LFO1() {
+inline void LFO1() {
   //tLFO1 = micros();                                     // take timestamp
   LFO1Level = LFO1_CC_HALF - LFO1_class.getWave(micros());
 }
 
-void LFO2() {
+inline void LFO2() {
   //tLFO2 = micros();                                     // take timestamp
   LFO2Level = LFO2_CC_HALF - LFO2_class.getWave(micros());
 }
 
-void DRIFT_LFOs() {
+inline void DRIFT_LFOs() {
   unsigned long currentMicros = micros();
   for (int i = 0; i < NUM_VOICES; i++) {
     LFO_DRIFT_LEVEL[i] = LFO_DRIFT_CC_HALF - LFO_DRIFT_CLASS[i].getWave(currentMicros);

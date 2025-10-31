@@ -37,7 +37,7 @@ void serial_send_calibration_mode() {
   //Serial.println("Sent autotune on");
 }
 
-void serial_send_signal(byte signal) {
+inline void serial_send_signal(byte signal) {
 #ifdef ENABLE_SERIAL1
   while (Serial1.availableForWrite() < 1) {}
   Serial1.write((char *)"s");
@@ -71,7 +71,7 @@ void serial_send_save_char_select(byte serialPresetChar) {
 #endif
 }
 
-void read_serial_1() {
+inline void read_serial_1() {
 #ifdef ENABLE_SERIAL1
   while (Serial1.available() > 0) {
     char commandCharacter = Serial1.read();  //we use characters (letters) for controlling the switch-case
@@ -120,7 +120,7 @@ void read_serial_1() {
 #endif
 }
 
-void read_serial_2() {
+inline void read_serial_2() {
 #ifdef ENABLE_SERIAL2
   while (Serial2.available() > 0) {
     char commandCharacter = Serial2.read();  //we use characters (letters) for controlling the switch-case
@@ -233,7 +233,7 @@ void read_serial_2() {
 #endif
 }
 
-void read_serial_8() {
+inline void read_serial_8() {
 #ifdef ENABLE_SERIAL8
   while (Serial8.available() > 0) {
     char commandCharacter = Serial8.read();  //we use characters (letters) for controlling the switch-case
@@ -244,12 +244,11 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-
           //MAP AND CONSTRAIN functions should be implemented on the input board.
-          ADSR1_attack = word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
-          ADSR1_decay = word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR1_attack = linToExpLookup[word(byteArray[0], byteArray[1])];  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR1_decay = linToExpLookup[word(byteArray[2], byteArray[3])];   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
           ADSR1_sustain = word(byteArray[4], byteArray[5]);
-          ADSR1_release = word(byteArray[6], byteArray[7]);  //map(constrain(word(byteArray[6], byteArray[7]), 15, 4075), 15, 4075, 0, 4095);
+          ADSR1_release = linToExpLookup[word(byteArray[6], byteArray[7])];  //map(constrain(word(byteArray[6], byteArray[7]), 15, 4075), 15, 4075, 0, 4095);
           break;
         }
       case 'b':
@@ -257,10 +256,10 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR2_attack = word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
-          ADSR2_decay = word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR2_attack = linToExpLookup[word(byteArray[0], byteArray[1])];  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
+          ADSR2_decay = linToExpLookup[word(byteArray[2], byteArray[3])];   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
           ADSR2_sustain = word(byteArray[4], byteArray[5]);
-          ADSR2_release = word(byteArray[6], byteArray[7]);  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
+          ADSR2_release = linToExpLookup[word(byteArray[6], byteArray[7])];  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
           break;
         }
       case 'c':
@@ -268,10 +267,12 @@ void read_serial_8() {
           byte byteArray[8];
           Serial8.readBytes(byteArray, 8);
 
-          ADSR3_attack = word(byteArray[0], byteArray[1]);  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
-          ADSR3_decay = word(byteArray[2], byteArray[3]);   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
+          ADSR3_attack = linToExpLookup[word(byteArray[0], byteArray[1])];  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
+          ADSR3_decay = linToExpLookup[word(byteArray[2], byteArray[3])];   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
           ADSR3_sustain = word(byteArray[4], byteArray[5]);
-          ADSR3_release = word(byteArray[6], byteArray[7]);  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
+          ADSR3_release = linToExpLookup[word(byteArray[6], byteArray[7])];  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
+
+          serialSendADSR3ControlValuesFlag = true;
           break;
         }
       case 'd':

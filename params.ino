@@ -1,4 +1,4 @@
-void update_parameters(byte paramNumber, int32_t paramValue) {
+inline void update_parameters(byte paramNumber, int32_t paramValue) {
   switch (paramNumber) {
     case 1:
       sawStatus = paramValue;
@@ -18,6 +18,7 @@ void update_parameters(byte paramNumber, int32_t paramValue) {
       break;
     case 5:
       sqr1Status = paramValue;
+      serialSendParamByteToDCOFunction(paramNumber, paramValue);
       //update_waveSelector(4);
       break;
     case 6:
@@ -162,9 +163,9 @@ void update_parameters(byte paramNumber, int32_t paramValue) {
 
     case 40:
       LFO1toDCOVal = paramValue;
-      //serialSendParamByteToDCO[0] = paramNumber;
-      //serialSendParamByteToDCO[1] = paramValue;
-      serialSendParamByteToDCOFunction(paramNumber, paramValue);
+      //serialSendParamToDCO[0] = paramNumber;
+      //serialSendParamToDCO[1] = paramValue;
+      serialSendParamToDCOFunction(paramNumber, paramValue);
       break;
     case 41:
       LFO1SpeedVal = paramValue;
@@ -185,6 +186,7 @@ void update_parameters(byte paramNumber, int32_t paramValue) {
       break;
     case 44:
       LFO1toVCA = paramValue;
+      formula_update(7);
       break;
     case 45:
       LFO2toPWM = paramValue;

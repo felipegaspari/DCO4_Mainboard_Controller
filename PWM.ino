@@ -1,8 +1,6 @@
-void setPWMOuts() {
+inline void setPWMOuts() {
 #include "include_all.h"
   // /* ***************************           VCA PWM          *****************************/
-  // uint16_t RESONANCE = somevalue - someothervalue;
-  // bool RESONANCEAmpCompensation = true;
 
   if (timer1msFlag) {
     static constexpr int DEFAULT_VCA_COMPENSATION = 100;
@@ -17,10 +15,25 @@ void setPWMOuts() {
     }
   }
 
+    int16_t LFO1toVCA_calc = (float)LFO1Level * LFO1toVCA_formula;
+    int16_t LFO1toVCA_current;
+    float VCA_velocityFactor[NUM_VOICES];
+
   for (byte i = 0; i < NUM_VOICES; i++) {
+        if (velocityToVCAVal == 0) {
+      VCA_velocityFactor[i] = 1;
+    } else {
+      VCA_velocityFactor[i] = 1 - ((float)velocityToVCA * (127 - velocity[i]));
+    }
     //VCA_PWM[i] = 4095 - (map((int)constrain((((float)ADSR1Level[i] * ADSR1toVCA_formula /* * (1.27 - (velocityToVCA * (127 - velocity[i])))*/) + ((float)LFO1Level * LFO1toVCA_formula) /*+ ((float)LFO2Level / 512 * LFO2toVCA)*/ + VCALevel /*+ RANDOMNESS1 + RANDOMNESS2*/), 0, 4095), 0, 4095, 0, 1820) * VCAResonanceCompensation);
     //VCA_PWM[i] = map(AS2164_VCA_linearize_table[ADSR1Level[i]], 0, 4095, VCAResonanceCompensation, 4095);//
-    VCA_PWM[i] = linearInterpolation(AS2164_VCA_linearize_table[ADSR1Level[i]], 0, 4095, VCAResonanceCompensation, 4095 - VCALevel);
+    if (ADSR1Level[i] == 0) {
+      LFO1toVCA_current = 0;
+    } else {
+      LFO1toVCA_current = LFO1toVCA_calc;
+    }
+    uint16_t VCA_Calculated = constrain((float)(ADSR1Level[i] + LFO1toVCA_current) * VCA_velocityFactor[i],0,4095);
+    VCA_PWM[i] = linearInterpolation(AS2164_VCA_linearize_table[VCA_Calculated], 0, 4095, VCAResonanceCompensation, 4095 - VCALevel);
   }
 
 
@@ -48,21 +61,21 @@ void setPWMOuts() {
   // }
 
   float LFO2toVCF = (float)LFO2Level * LFO2toVCF_formula;
-  float velocityFactor[NUM_VOICES];
+  float VCF_velocityFactor[NUM_VOICES];
 
   for (byte i = 0; i < NUM_VOICES; i++) {
     if (velocityToVCFVal == 0) {
-      velocityFactor[i] = 1;
+      VCF_velocityFactor[i] = 1;
     } else {
-      velocityFactor[i] = 1 - ((float)velocityToVCF * (127 - velocity[i]));
+      VCF_velocityFactor[i] = 1 - ((float)velocityToVCF * (127 - velocity[i]));
     }
     float ADSR2toVCFcalculated = (float)ADSR2Level[i] * ADSR2toVCF_formula;
     float combinedValue = ADSR2toVCFcalculated + LFO2toVCF + CUTOFF + VCF_DRIFT[i];
-    float finalValue = combinedValue * velocityFactor[i] * (float)VCFKeytrackPerVoice[i];
+    float finalValue = combinedValue * VCF_velocityFactor[i] * (float)VCFKeytrackPerVoice[i];
     VCF_PWM[i] = 4095 - (int)constrain(finalValue, 0, 4095);
   }
 
-  // /* ***************************           PW PWM          *****************************/
+  // /* ***************************          PWM TIMING          *****************************/
 
   // RESONANCE
   htim4->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);  // RESO1
@@ -157,13 +170,13 @@ void setPWMOutsManualCalibration() {
   mcpUpdate();
 }
 
-void mcpUpdate() {
+inline void mcpUpdate() {
   mcp.analogWrite(SQR1Level, SQR2Level, SQR1Level, SQR2Level);  // V1 OSC1, V2 OSC2, V2 OSC1, V3 OSC2
   mcp2.analogWrite(SQR1Level, SQR2Level, SQR1Level, SubLevel);  // V3 OSC1, V4 OSC2, V4 OSC1, SUB3
   mcp3.analogWrite(SubLevel, SubLevel, SubLevel, SQR2Level);    // SUB4, SUB1, SUB2, V1 OSC2
 }
 
-uint16_t linearInterpolation(uint16_t value, uint16_t x0, uint16_t x1, uint16_t y0, uint16_t y1) {
+inline uint16_t linearInterpolation(uint16_t value, uint16_t x0, uint16_t x1, uint16_t y0, uint16_t y1) {
   // Ensure x1 is not equal to x0 to avoid division by zero
   if (x1 == x0) {
     return y0;

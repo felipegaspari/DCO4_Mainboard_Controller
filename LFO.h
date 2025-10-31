@@ -42,7 +42,7 @@ float    LFO1Speed;
 uint16_t LFO1toVCF;
 uint16_t LFO1toVCA = 0;
 uint16_t LFO1toPWM;
-float    LFO1toDCO;
+int16_t    LFO1toDCO;
 uint16_t LFO1toDETUNE1;
 uint16_t LFO1toDETUNE2;
 

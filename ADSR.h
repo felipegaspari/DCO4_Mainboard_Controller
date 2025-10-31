@@ -22,7 +22,7 @@ int _curve6_table[ARRAY_SIZE];
 int _curve7_table[ARRAY_SIZE];
 int *_curve_tables[8] = { _curve0_table, _curve1_table, _curve2_table, _curve3_table, _curve4_table, _curve5_table, _curve6_table, _curve7_table };
 
-#include <adsr_fela_bezier.h>
+#include <ADSR_Bezier_millis.h>
 
 void adsrCreateTables(float maxVal, int numPoints) {
 

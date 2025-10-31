@@ -25,7 +25,7 @@ void sendParams() {
   }
 }
 
-void sendSerial() {
+inline void sendSerial() {
   // if (sendDetune2Flag) {
   //   if (Serial2.availableForWrite() > 1) {
   //     DETUNE2 = (uint8_t)((float)(LFO2Level + LFO2_CC_HALF) / 4096 * LFO2toOSC2DETUNE) + OSC2Detune;
@@ -95,15 +95,20 @@ void sendSerial() {
 
   if (serialSendADSR3ControlValuesFlag == true) {
     if (Serial2.availableForWrite() > 4) {
-      byte ADSR3BytesArray[5];
-      ADSR3BytesArray[0] = (byte)'s';
-      ADSR3BytesArray[1] = (byte)(ADSR3_attack / 16);
-      ADSR3BytesArray[2] = (byte)(ADSR3_decay / 16);
-      ADSR3BytesArray[3] = (byte)(ADSR3_sustain / 16);
-      ADSR3BytesArray[4] = (byte)(ADSR3_release / 16);
-      //Serial2.write((char *)"s");
-      Serial2.write(ADSR3BytesArray, 5);
-      serialSendADSR3ControlValuesFlag = false;
+      byte dataArray[9];
+
+    dataArray[0] = (uint8_t)'s';
+    dataArray[1] = highByte(ADSR3_attack);
+    dataArray[2] = lowByte(ADSR3_attack);
+    dataArray[3] = highByte(ADSR3_decay);
+    dataArray[4] = lowByte(ADSR3_decay);
+    dataArray[5] = highByte(ADSR3_sustain);
+    dataArray[6] = lowByte(ADSR3_sustain);
+    dataArray[7] = highByte(ADSR3_release);
+    dataArray[8] = lowByte(ADSR3_release);
+
+    Serial2.write(dataArray, 9);
+    serialSendADSR3ControlValuesFlag = false;
     }
   }
 
@@ -203,21 +208,21 @@ uint8_t *b = (uint8_t *)&paramValue;
   Serial1.write(bytesArray, 7);
 }
 
-void serialSendParamByteToScreen(byte paramNumber, byte paramValue)
+inline void serialSendParamByteToScreen(byte paramNumber, byte paramValue)
 {
  while(Serial1.availableForWrite() < 4) {};
   byte bytesArray[4] = {(uint8_t)'y', paramNumber, paramValue, finishByte};
   Serial1.write(bytesArray, 4);
 }
 
-void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
+inline void serialSendParamByteToDCOFunction(byte paramNumber, byte paramValue)
 {
  while(Serial2.availableForWrite() < 4) {};
   byte bytesArray[4] = {(uint8_t)'w', paramNumber, paramValue, finishByte};
   Serial2.write(bytesArray, 4);
 }
 
-void serialSendParamToDCOFunction(uint8_t paramNumber, int paramValue)
+inline void serialSendParamToDCOFunction(uint8_t paramNumber, int paramValue)
 {
   while(Serial2.availableForWrite() < 5) {};
   byte bytesArray[5] = {(uint8_t)'p', (uint8_t)paramNumber, highByte(paramValue), lowByte(paramValue), finishByte};
