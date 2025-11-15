@@ -7,43 +7,8 @@
 
 #define ARRAY_SIZE 4096
 
-// struct Point {
-//   float x, y;
-// };
 
-
-int _curve0_table[ARRAY_SIZE];
-int _curve1_table[ARRAY_SIZE];
-int _curve2_table[ARRAY_SIZE];
-int _curve3_table[ARRAY_SIZE];
-int _curve4_table[ARRAY_SIZE];
-int _curve5_table[ARRAY_SIZE];
-int _curve6_table[ARRAY_SIZE];
-int _curve7_table[ARRAY_SIZE];
-int *_curve_tables[8] = { _curve0_table, _curve1_table, _curve2_table, _curve3_table, _curve4_table, _curve5_table, _curve6_table, _curve7_table };
-
-#include <ADSR_Bezier_millis.h>
-
-void adsrCreateTables(float maxVal, int numPoints) {
-
-  Point A = { 0, maxVal };  // Punto inicial
-  Point B = { maxVal, 0 };
-  Point P1[8] = { { 250, 1500 }, { 840, 1780 }, { 400, 430 }, { 2170, 3610 }, { 400, 1380 }, { 1140, 3750 }, { 200, 2700 }, { 0, 4095 } };
-  Point P2[8] = { { 1500, 250 }, { 1160, 210 }, { 920, 420 }, { 3730, 2610 }, { 3830, 2890 }, { 1850, 1080 }, { 720, 3050 }, { 4095, 0 } };
-
-  for (int j = 0; j < 8; j++) {
-
-    float multiplier = (float)(maxVal + 1) / (float)(numPoints - 1);
-
-    // Imprimir los puntos de la curva
-    for (float i = 0; i < numPoints; i++) {
-      float xTarget = multiplier * i;
-      float yResult = findYForX(A, P1[j], P2[j], B, xTarget);
-
-      _curve_tables[j][(int)i] = (int)round(yResult);
-    }
-  }
-}
+#include <ADSR_Bezier.h>
 
 
 static constexpr uint16_t ADSR_1_CC = 4095;

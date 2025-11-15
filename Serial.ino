@@ -120,249 +120,273 @@ inline void read_serial_1() {
 #endif
 }
 
+
+// -------------------------------
+// Serial2 parser (non-blocking, shared core)
+// -------------------------------
+//
+// This section wires the generic serial_parser.h core to the mainboard's
+// Serial2 link. The mainboard receives from the DCO:
+//
+//   'n' : NOTE ON
+//   'o' : NOTE OFF
+//   'p' : PARAM 16-bit (ParamId + int16)
+//   'w' : PARAM 8-bit  (ParamId + int8)
+//   'x' : PARAM 32-bit (ParamId + uint32)
+//
+// The parser core is shared; only the handlers below are mainboard-specific.
+
+// NOTE ON ('n') handler
+static void main_handle_note_on(char, const uint8_t* payload, uint8_t len) {
+  if (len != SERIAL_PAYLOAD_LEN_NOTE_ON) {
+    return;
+  }
+  uint8_t voice_n = payload[0];
+  uint8_t velo    = payload[1];
+  uint8_t noteVal = payload[2];
+
+  velocity[voice_n]  = velo;
+  note[voice_n]      = noteVal;
+  noteStart[voice_n] = 1;
+  noteEnd[voice_n]   = 0;
+}
+
+// NOTE OFF ('o') handler
+static void main_handle_note_off(char, const uint8_t* payload, uint8_t len) {
+  if (len != SERIAL_PAYLOAD_LEN_NOTE_OFF) {
+    return;
+  }
+  uint8_t voice_n = payload[0];
+  noteEnd[voice_n]   = 1;
+  noteStart[voice_n] = 0;
+}
+
+// Shared parameter handlers: decode then call update_parameters(int32_t)
+static void main_handle_param16(char, const uint8_t* payload, uint8_t len) {
+  if (len != SERIAL_PAYLOAD_LEN_PARAM_16) {
+    return;
+  }
+  ParamFrame frame;
+  decode_param_p(payload, frame);
+  update_parameters(frame.id, frame.value);
+}
+
+static void main_handle_param8(char, const uint8_t* payload, uint8_t len) {
+  if (len != SERIAL_PAYLOAD_LEN_PARAM_8) {
+    return;
+  }
+  ParamFrame frame;
+  decode_param_w(payload, frame);
+  update_parameters(frame.id, frame.value);
+}
+
+static void main_handle_param32(char, const uint8_t* payload, uint8_t len) {
+  if (len != SERIAL_PAYLOAD_LEN_PARAM_32) {
+    return;
+  }
+  ParamFrame frame;
+  decode_param_x(payload, frame);
+  update_parameters(frame.id, frame.value);
+}
+
+// Command table for the mainboard's Serial2 link.
+static const SerialCommandDef mainSerial2Commands[] = {
+  { SERIAL_CMD_NOTE_ON,   SERIAL_PAYLOAD_LEN_NOTE_ON,   main_handle_note_on   },
+  { SERIAL_CMD_NOTE_OFF,  SERIAL_PAYLOAD_LEN_NOTE_OFF,  main_handle_note_off  },
+  { SERIAL_CMD_PARAM_16,  SERIAL_PAYLOAD_LEN_PARAM_16,  main_handle_param16   },
+  { SERIAL_CMD_PARAM_8,   SERIAL_PAYLOAD_LEN_PARAM_8,   main_handle_param8    },
+  { SERIAL_CMD_PARAM_32,  SERIAL_PAYLOAD_LEN_PARAM_32,  main_handle_param32   },
+};
+
+// Parser context for the mainboard's Serial2 link.
+static SerialParserContext mainSerial2Parser = {
+  SERIAL_WAIT_FOR_CMD,
+  0,
+  {0},
+  0,
+  0,
+  0
+};
+
+// Mainboard's Serial2 read loop (replace older parser's read function).
 inline void read_serial_2() {
 #ifdef ENABLE_SERIAL2
+  // First, expire any stale partial frame
+  uint32_t now = micros();
+  serial_parser_check_timeout(mainSerial2Parser, now);
+
+  // Then, consume all available bytes without blocking
   while (Serial2.available() > 0) {
-    char commandCharacter = Serial2.read();  //we use characters (letters) for controlling the switch-case
-    switch (commandCharacter) {
-
-      case 'n':
-        {
-          byte byteArray[3];
-          while (Serial2.available() < 3) {}
-          Serial2.readBytes(byteArray, 3);
-
-          byte voice_n = byteArray[0];
-          velocity[voice_n] = byteArray[1];
-          note[voice_n] = byteArray[2];
-
-          noteStart[voice_n] = 1;
-          noteEnd[voice_n] = 0;
-          break;
-        }
-      case 'o':
-        {
-          byte voice_n;
-          while (Serial2.available() < 1) {}
-          voice_n = Serial2.read();
-          noteEnd[voice_n] = 1;
-          noteStart[voice_n] = 0;
-          break;
-        }
-      case 'p':
-        {
-          byte paramBytes[3];
-          byte finishByte = 1;
-          byte readByte = 0;
-
-          while (Serial2.available() < 1) {}
-
-          Serial2.readBytes(paramBytes, 3);
-
-          while (readByte != finishByte) {
-            readByte = Serial2.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          int16_t paramValue = (int16_t)word(paramBytes[1], paramBytes[2]);
-
-          update_parameters(paramNumber, paramValue);
-
-          break;
-        }
-      case 'w':
-        {
-          byte paramBytes[2];
-          byte finishByte = 1;
-          byte readByte = 0;
-
-          while (Serial2.available() < 1) {}
-
-          Serial2.readBytes(paramBytes, 2);
-
-          while (readByte != finishByte) {
-            readByte = Serial2.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          int16_t paramValue = paramBytes[1];
-
-          update_parameters(paramNumber, (uint16_t)paramValue);
-          break;
-        }
-      case 'x':
-        {
-          byte paramBytes[5];
-          byte paramValueArray[4];
-          byte finishByte = 1;
-          byte readByte = 0;
-          uint32_t paramValue32;
-
-          while (Serial2.available() < 1) {}
-
-          Serial2.readBytes(paramBytes, 5);
-
-          while (readByte != finishByte) {
-            readByte = Serial2.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          paramValueArray[0] = paramBytes[1];
-          paramValueArray[1] = paramBytes[2];
-          paramValueArray[2] = paramBytes[3];
-          paramValueArray[3] = paramBytes[4];
-
-          memcpy(&paramValue32, paramValueArray, 4);
-
-          update_parameters(paramNumber, (int32_t)paramValue32);
-          break;
-        }
-        // case 'g':
-        //   {
-        //     byte byteArray[4];
-        //     while (Serial2.available() < 4) {}
-        //     Serial2.readBytes(byteArray, 4);
-        //     float receivedValueFloat;
-        //     memcpy (&receivedValueFloat, byteArray, 4);
-
-        //     //serial_send_param_change_32(154, (uint32_t)receivedValueFloat);
-        //     break;
-        //   }
-    }
+    uint8_t b = Serial2.read();
+    now = micros();
+    serial_parser_process_byte(
+      mainSerial2Parser,
+      mainSerial2Commands,
+      sizeof(mainSerial2Commands) / sizeof(mainSerial2Commands[0]),
+      b,
+      now
+    );
   }
 #endif
 }
 
+// -------------------------------
+// Serial8 parser (non-blocking, shared core)
+// -------------------------------
+//
+// This section wires the generic serial_parser.h core to the mainboard's
+// Serial8 link. The input board sends:
+//
+//   'a' : ADSR1 block (8 bytes)
+//   'b' : ADSR2 block (8 bytes)
+//   'c' : ADSR3 block (8 bytes)
+//   'd' : filter block (8 bytes)
+//   'e' : ADSR1->VCA amount (2 bytes)
+//   'f' : PWM value (2 bytes)
+//   'p' : PARAM 16-bit (ParamId + int16 + finish)
+//   'w' : PARAM 8-bit  (ParamId + int8  + finish)
+//   'q' : preset name (8 chars + finish byte)
+//
+// The parser core is shared; only the handlers below are mainboard-specific.
+
+// ADSR1 block ('a'): 8 bytes
+static void input_handle_adsr1(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_ADSR_BLOCK) {
+    return;
+  }
+  // MAP/CONSTRAIN is done on input board; here we just apply the values.
+  ADSR1_attack  = linToExpLookup[word(payload[0], payload[1])];
+  ADSR1_decay   = linToExpLookup[word(payload[2], payload[3])];
+  ADSR1_sustain = word(payload[4], payload[5]);
+  ADSR1_release = linToExpLookup[word(payload[6], payload[7])];
+}
+
+// ADSR2 block ('b'): 8 bytes
+static void input_handle_adsr2(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_ADSR_BLOCK) {
+    return;
+  }
+  ADSR2_attack  = linToExpLookup[word(payload[0], payload[1])];
+  ADSR2_decay   = linToExpLookup[word(payload[2], payload[3])];
+  ADSR2_sustain = word(payload[4], payload[5]);
+  ADSR2_release = linToExpLookup[word(payload[6], payload[7])];
+}
+
+// ADSR3 block ('c'): 8 bytes
+static void input_handle_adsr3(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_ADSR_BLOCK) {
+    return;
+  }
+  ADSR3_attack  = linToExpLookup[word(payload[0], payload[1])];
+  ADSR3_decay   = linToExpLookup[word(payload[2], payload[3])];
+  ADSR3_sustain = word(payload[4], payload[5]);
+  ADSR3_release = linToExpLookup[word(payload[6], payload[7])];
+
+  serialSendADSR3ControlValuesFlag = true;
+}
+
+// Filter block ('d'): 8 bytes
+static void input_handle_filter_block(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_FILTER_BLOCK) {
+    return;
+  }
+  CUTOFF     = word(payload[0], payload[1]);
+  RESONANCE  = word(payload[2], payload[3]);
+  ADSR2toVCF = word(payload[4], payload[5]);
+  LFO2toVCF  = word(payload[6], payload[7]);
+  formula_update(4);
+  formula_update(2);
+}
+
+// ADSR1->VCA amount ('e'): 2 bytes
+static void input_handle_adsr1_to_vca(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_ADSR1_TO_VCA) {
+    return;
+  }
+  ADSR1toVCA = word(payload[0], payload[1]);
+}
+
+// PWM value ('f'): 2 bytes
+static void input_handle_pw(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_PW_VALUE) {
+    return;
+  }
+  PW = word(payload[0], payload[1]);
+}
+
+// PARAM 16-bit from input board ('p'):
+// payload: [paramNumber, hi, lo, finish] (finish is ignored here).
+static void input_handle_param16(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_PARAM_16) {
+    return;
+  }
+  ParamFrame frame;
+  decode_param_p(payload, frame);
+  update_parameters(frame.id, frame.value);
+}
+
+// PARAM 8-bit from input board ('w'):
+// payload: [paramNumber, int8 value, finish] (finish is ignored).
+static void input_handle_param8(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_PARAM_8) {
+    return;
+  }
+  ParamFrame frame;
+  decode_param_w(payload, frame);
+  update_parameters(frame.id, frame.value);
+}
+
+// Preset name ('q'):
+// payload: [8 chars, finishByte]
+static void input_handle_preset_name(char, const uint8_t* payload, uint8_t len) {
+  if (len != INPUT_SERIAL_LEN_PRESET_NAME) {
+    return;
+  }
+  for (int i = 0; i < 8; ++i) {
+    presetName[i] = payload[i];
+  }
+  // payload[8] is the finish byte; we don't need its value here.
+}
+
+// Command table for the mainboard's Serial8 link (input board).
+static const SerialCommandDef inputSerial8Commands[] = {
+  { INPUT_CMD_ADSR1_BLOCK,   INPUT_SERIAL_LEN_ADSR_BLOCK,   input_handle_adsr1          },
+  { INPUT_CMD_ADSR2_BLOCK,   INPUT_SERIAL_LEN_ADSR_BLOCK,   input_handle_adsr2          },
+  { INPUT_CMD_ADSR3_BLOCK,   INPUT_SERIAL_LEN_ADSR_BLOCK,   input_handle_adsr3          },
+  { INPUT_CMD_FILTER_BLOCK,  INPUT_SERIAL_LEN_FILTER_BLOCK, input_handle_filter_block   },
+  { INPUT_CMD_ADSR1_TO_VCA,  INPUT_SERIAL_LEN_ADSR1_TO_VCA, input_handle_adsr1_to_vca   },
+  { INPUT_CMD_PW_VALUE,      INPUT_SERIAL_LEN_PW_VALUE,     input_handle_pw             },
+  { INPUT_CMD_PARAM_16,      INPUT_SERIAL_LEN_PARAM_16,     input_handle_param16        },
+  { INPUT_CMD_PARAM_8,       INPUT_SERIAL_LEN_PARAM_8,      input_handle_param8         },
+  { INPUT_CMD_PRESET_NAME,   INPUT_SERIAL_LEN_PRESET_NAME,  input_handle_preset_name    },
+};
+
+static SerialParserContext inputSerial8Parser = {
+  SERIAL_WAIT_FOR_CMD,
+  0,
+  {0},
+  0,
+  0,
+  0
+};
+
 inline void read_serial_8() {
 #ifdef ENABLE_SERIAL8
+  // First, expire any stale partial frame
+  uint32_t now = micros();
+  serial_parser_check_timeout(inputSerial8Parser, now);
+
+  // Then, consume all available bytes without blocking
   while (Serial8.available() > 0) {
-    char commandCharacter = Serial8.read();  //we use characters (letters) for controlling the switch-case
-
-    switch (commandCharacter) {
-      case 'a':
-        {
-          byte byteArray[8];
-          Serial8.readBytes(byteArray, 8);
-
-          //MAP AND CONSTRAIN functions should be implemented on the input board.
-          ADSR1_attack = linToExpLookup[word(byteArray[0], byteArray[1])];  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 0, 4095);
-          ADSR1_decay = linToExpLookup[word(byteArray[2], byteArray[3])];   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
-          ADSR1_sustain = word(byteArray[4], byteArray[5]);
-          ADSR1_release = linToExpLookup[word(byteArray[6], byteArray[7])];  //map(constrain(word(byteArray[6], byteArray[7]), 15, 4075), 15, 4075, 0, 4095);
-          break;
-        }
-      case 'b':
-        {
-          byte byteArray[8];
-          Serial8.readBytes(byteArray, 8);
-
-          ADSR2_attack = linToExpLookup[word(byteArray[0], byteArray[1])];  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
-          ADSR2_decay = linToExpLookup[word(byteArray[2], byteArray[3])];   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
-          ADSR2_sustain = word(byteArray[4], byteArray[5]);
-          ADSR2_release = linToExpLookup[word(byteArray[6], byteArray[7])];  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
-          break;
-        }
-      case 'c':
-        {
-          byte byteArray[8];
-          Serial8.readBytes(byteArray, 8);
-
-          ADSR3_attack = linToExpLookup[word(byteArray[0], byteArray[1])];  //map(constrain(word(byteArray[0], byteArray[1]), 20, 4075), 20, 4075, 5, 4095);
-          ADSR3_decay = linToExpLookup[word(byteArray[2], byteArray[3])];   //map(constrain(word(byteArray[2], byteArray[3]), 20, 4075), 20, 4075, 0, 4095);
-          ADSR3_sustain = word(byteArray[4], byteArray[5]);
-          ADSR3_release = linToExpLookup[word(byteArray[6], byteArray[7])];  //map(constrain(word(byteArray[6], byteArray[7]), 20, 4075), 20, 4075, 13, 4095);
-
-          serialSendADSR3ControlValuesFlag = true;
-          break;
-        }
-      case 'd':
-        {
-          byte byteArray[8];
-          Serial8.readBytes(byteArray, 8);
-
-          CUTOFF = word(byteArray[0], byteArray[1]);
-          RESONANCE = word(byteArray[2], byteArray[3]);
-          ADSR2toVCF = word(byteArray[4], byteArray[5]);
-          LFO2toVCF = word(byteArray[6], byteArray[7]);
-          formula_update(4);
-          formula_update(2);
-          break;
-        }
-      case 'e':
-        {
-          byte byteArray[2];
-          Serial8.readBytes(byteArray, 2);
-
-          ADSR1toVCA = word(byteArray[0], byteArray[1]);
-          break;
-        }
-      case 'f':
-        {
-          byte byteArray[2];
-          Serial8.readBytes(byteArray, 2);
-
-          PW = word(byteArray[0], byteArray[1]);
-          break;
-        }
-
-      case 'p':
-        {
-          byte paramBytes[3];
-          byte finishByte = 1;
-          byte readByte = 0;
-
-          while (Serial8.available() < 1) {}
-
-          Serial8.readBytes(paramBytes, 3);
-
-          while (readByte != finishByte) {
-            readByte = Serial8.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          int16_t paramValue = (int16_t)word(paramBytes[1], paramBytes[2]);
-
-          update_parameters(paramNumber, paramValue);
-
-          break;
-        }
-      case 'w':
-        {
-          byte paramBytes[2];
-          byte finishByte = 1;
-          byte readByte = 0;
-
-          while (Serial8.available() < 1) {}
-
-          Serial8.readBytes(paramBytes, 2);
-
-          while (readByte != finishByte) {
-            readByte = Serial8.read();
-          }
-
-          uint8_t paramNumber = paramBytes[0];
-          int16_t paramValue = paramBytes[1];
-
-          update_parameters(paramNumber, (uint16_t)paramValue);
-          break;
-        }
-      case 'q':
-        {
-          byte finishByte = 1;
-          byte readByte = 0;
-          byte presetNameBytes[8] = { 32, 32, 32, 32, 32, 32, 32, 32 };
-          while (Serial8.available() < 1) {}
-
-          Serial8.readBytes(presetNameBytes, 8);
-          for (int i = 0; i < 8; i++) {
-            presetName[i] = presetNameBytes[i];
-          }
-          while (readByte != finishByte) {
-            readByte = Serial8.read();
-          }
-          break;
-        }
-    }
+    uint8_t b = Serial8.read();
+    now = micros();
+    serial_parser_process_byte(
+      inputSerial8Parser,
+      inputSerial8Commands,
+      sizeof(inputSerial8Commands) / sizeof(inputSerial8Commands[0]),
+      b,
+      now
+    );
   }
 #endif
 }

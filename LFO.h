@@ -54,7 +54,6 @@ uint16_t LFO2toVCA;
 uint16_t LFO2toPWM;
 float    LFO2toDCO;
 uint16_t LFO2toDETUNE1;
-uint16_t LFO2toDETUNE2;
 uint16_t LFO2toOSC2DETUNE;
 
 int16_t LFO3Level;

@@ -1,6 +1,8 @@
 void init_ADSR() {
 
-  adsrCreateTables(4095, ARRAY_SIZE);
+  // Initialize ADSR Bézier lookup tables via library helper
+  adsrBezierInitTables(ADSR_1_CC, ARRAY_SIZE, _curve_tables);
+
 
   for (int i = 0; i < NUM_VOICES; i++) {
     ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack);    // initialize attack
@@ -24,40 +26,39 @@ void init_ADSR() {
 }
 
 inline void ADSR_update() {
-  tADSR = millis();
   for (int i = 0; i < NUM_VOICES; i++) {
     if (noteEnd[i] == 1) {
-      ADSRVoices[i].adsr1_voice.noteOff(tADSR);
-      ADSRVoices[i].adsr2_voice.noteOff(tADSR);
-      ADSRVoices[i].adsr3_voice.noteOff(tADSR);
+      ADSRVoices[i].adsr1_voice.noteOff();
+      ADSRVoices[i].adsr2_voice.noteOff();
+      ADSRVoices[i].adsr3_voice.noteOff();
     } else if (noteStart[i] == 1) {
-      ADSRVoices[i].adsr1_voice.noteOff(tADSR - 1);
+      ADSRVoices[i].adsr1_voice.noteOff();
       ADSRVoices[i].adsr1_voice.setAttack(ADSR1_attack);
       ADSRVoices[i].adsr1_voice.setDecay(ADSR1_decay);
       ADSRVoices[i].adsr1_voice.setRelease(ADSR1_release);
-      ADSRVoices[i].adsr1_voice.noteOn(tADSR);
+      ADSRVoices[i].adsr1_voice.noteOn();
 
-      ADSRVoices[i].adsr2_voice.noteOff(tADSR - 1);
+      ADSRVoices[i].adsr2_voice.noteOff();
       ADSRVoices[i].adsr2_voice.setAttack(ADSR2_attack);
       ADSRVoices[i].adsr2_voice.setDecay(ADSR2_decay);
       ADSRVoices[i].adsr2_voice.setRelease(ADSR2_release);
-      ADSRVoices[i].adsr2_voice.noteOn(tADSR);
+      ADSRVoices[i].adsr2_voice.noteOn();
 
-      ADSRVoices[i].adsr3_voice.noteOff(tADSR - 1);
+      ADSRVoices[i].adsr3_voice.noteOff();
       ADSRVoices[i].adsr3_voice.setAttack(ADSR3_attack);
       ADSRVoices[i].adsr3_voice.setDecay(ADSR3_decay);
       ADSRVoices[i].adsr3_voice.setRelease(ADSR3_release);
-      ADSRVoices[i].adsr3_voice.noteOn(tADSR);
+      ADSRVoices[i].adsr3_voice.noteOn();
     }
-    tADSR = millis();
-    ADSR1Level[i] = ADSRVoices[i].adsr1_voice.getWave(tADSR);
-    ADSR2Level[i] = ADSRVoices[i].adsr2_voice.getWave(tADSR);
-    ADSR3Level[i] = ADSRVoices[i].adsr3_voice.getWave(tADSR);
+    ADSR1Level[i] = ADSRVoices[i].adsr1_voice.getWave();
+    ADSR2Level[i] = ADSRVoices[i].adsr2_voice.getWave();
+    ADSR3Level[i] = ADSRVoices[i].adsr3_voice.getWave();
   }
   ADSR_set_parameters();
 }
 
 inline void ADSR_set_parameters() {
+      tADSR = millis();
   if ((tADSR - tADSR_params) > 5) {
     for (int i = 0; i < NUM_VOICES; i++) {
       ADSRVoices[i].adsr1_voice.setSustain(ADSR1_sustain);
