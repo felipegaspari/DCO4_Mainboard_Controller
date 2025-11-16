@@ -150,9 +150,12 @@ void loop() {
   // }
 
   if (timer1msFlag) {
-    // if (ADSR3Enabled) {
-    //   serialSendADSR3ControlValuesFlag = true; // flag is now set when serial data is received
-    // }
+    // Periodically refresh ADSR3 values on the DCO whenever ADSR3 is enabled.
+    // This restores the old behavior where ADSR3 control data was sent
+    // continuously (not only when a new block was received from the input board).
+    if (ADSR3Enabled) {
+      serialSendADSR3ControlValuesFlag = true;
+    }
     if (PWMPotsControlManual) {
       serialSendPWFlag = true;
     }
