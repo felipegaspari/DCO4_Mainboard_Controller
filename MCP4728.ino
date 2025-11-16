@@ -1,5 +1,5 @@
 //#include <Adafruit_MCP4728.h>
-#include "MCP4728.h"
+#include "MCP4728_multiaddress.h"
 #include <Wire.h>
 
 // Adafruit_MCP4728 mcp;
