@@ -9,6 +9,12 @@
 #define ENABLE_SD
 
 #include "Arduino.h"
+
+#include <stdint.h>
+
+#include "params_def.h"
+#include "param_router.h"
+
 #include "params.h"
 #include "auxiliary.h"
 #include "PWM.h"

@@ -14,7 +14,7 @@
 //   - New parameters should get new, unused numbers.
 //   - The meaning of each ID (name + number) should be stable across MCUs.
 
-enum ParamId : uint16_t {
+enum ParamId : uint8_t {
   // --- Oscillator wave enable (mainboard-local) ---------------------
   PARAM_SAW_STATUS               = 1,   // sawStatus
   PARAM_SAW2_STATUS              = 2,   // saw2Status

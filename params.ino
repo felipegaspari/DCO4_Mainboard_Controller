@@ -28,8 +28,6 @@
 //   3) Add an entry to paramTable[] mapping your ParamId to the new function.
 //   4) Make sure all senders use the same ParamId and appropriate value range.
 
-#include "params_def.h"
-#include "param_router.h"
 
 // ---- Apply functions for each parameter -----------------------------
 
