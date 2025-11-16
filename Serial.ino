@@ -202,6 +202,7 @@ static const SerialCommandDef mainSerial2Commands[] = {
 static SerialParserContext mainSerial2Parser = {
   SERIAL_WAIT_FOR_CMD,
   0,
+  nullptr,
   {0},
   0,
   0,
@@ -211,21 +212,25 @@ static SerialParserContext mainSerial2Parser = {
 // Mainboard's Serial2 read loop (replace older parser's read function).
 inline void read_serial_2() {
 #ifdef ENABLE_SERIAL2
-  // First, expire any stale partial frame
-  uint32_t now = micros();
-  serial_parser_check_timeout(mainSerial2Parser, now);
+  // First, expire any stale partial frame (only if we're in a frame).
+  if (mainSerial2Parser.state == SERIAL_READ_PAYLOAD) {
+    uint32_t now = micros();
+    serial_parser_check_timeout(mainSerial2Parser, now);
+  }
 
-  // Then, consume all available bytes without blocking
-  while (Serial2.available() > 0) {
-    uint8_t b = Serial2.read();
-    now = micros();
-    serial_parser_process_byte(
-      mainSerial2Parser,
-      mainSerial2Commands,
-      sizeof(mainSerial2Commands) / sizeof(mainSerial2Commands[0]),
-      b,
-      now
-    );
+  // Then, consume all available bytes without blocking.
+  if (Serial2.available() > 0) {
+    uint32_t now = micros();  // one timestamp per batch is enough
+    while (Serial2.available() > 0) {
+      uint8_t b = Serial2.read();
+      serial_parser_process_byte(
+        mainSerial2Parser,
+        mainSerial2Commands,
+        sizeof(mainSerial2Commands) / sizeof(mainSerial2Commands[0]),
+        b,
+        now
+      );
+    }
   }
 #endif
 }
@@ -255,10 +260,10 @@ static void input_handle_adsr1(char, const uint8_t* payload, uint8_t len) {
     return;
   }
   // MAP/CONSTRAIN is done on input board; here we just apply the values.
-  ADSR1_attack  = linToExpLookup[word(payload[0], payload[1])];
-  ADSR1_decay   = linToExpLookup[word(payload[2], payload[3])];
+  ADSR1_attack  = word(payload[0], payload[1]);
+  ADSR1_decay   = word(payload[2], payload[3]);
   ADSR1_sustain = word(payload[4], payload[5]);
-  ADSR1_release = linToExpLookup[word(payload[6], payload[7])];
+  ADSR1_release = word(payload[6], payload[7]);
 }
 
 // ADSR2 block ('b'): 8 bytes
@@ -266,10 +271,10 @@ static void input_handle_adsr2(char, const uint8_t* payload, uint8_t len) {
   if (len != INPUT_SERIAL_LEN_ADSR_BLOCK) {
     return;
   }
-  ADSR2_attack  = linToExpLookup[word(payload[0], payload[1])];
-  ADSR2_decay   = linToExpLookup[word(payload[2], payload[3])];
+  ADSR2_attack  = word(payload[0], payload[1]);
+  ADSR2_decay   = word(payload[2], payload[3]);
   ADSR2_sustain = word(payload[4], payload[5]);
-  ADSR2_release = linToExpLookup[word(payload[6], payload[7])];
+  ADSR2_release = word(payload[6], payload[7]);
 }
 
 // ADSR3 block ('c'): 8 bytes
@@ -277,10 +282,10 @@ static void input_handle_adsr3(char, const uint8_t* payload, uint8_t len) {
   if (len != INPUT_SERIAL_LEN_ADSR_BLOCK) {
     return;
   }
-  ADSR3_attack  = linToExpLookup[word(payload[0], payload[1])];
-  ADSR3_decay   = linToExpLookup[word(payload[2], payload[3])];
+  ADSR3_attack  = word(payload[0], payload[1]);
+  ADSR3_decay   = word(payload[2], payload[3]);
   ADSR3_sustain = word(payload[4], payload[5]);
-  ADSR3_release = linToExpLookup[word(payload[6], payload[7])];
+  ADSR3_release = word(payload[6], payload[7]);
 
   serialSendADSR3ControlValuesFlag = true;
 }
@@ -364,6 +369,7 @@ static const SerialCommandDef inputSerial8Commands[] = {
 static SerialParserContext inputSerial8Parser = {
   SERIAL_WAIT_FOR_CMD,
   0,
+  nullptr,
   {0},
   0,
   0,
@@ -372,21 +378,25 @@ static SerialParserContext inputSerial8Parser = {
 
 inline void read_serial_8() {
 #ifdef ENABLE_SERIAL8
-  // First, expire any stale partial frame
-  uint32_t now = micros();
-  serial_parser_check_timeout(inputSerial8Parser, now);
+  // First, expire any stale partial frame (only if we're in a frame).
+  if (inputSerial8Parser.state == SERIAL_READ_PAYLOAD) {
+    uint32_t now = micros();
+    serial_parser_check_timeout(inputSerial8Parser, now);
+  }
 
-  // Then, consume all available bytes without blocking
-  while (Serial8.available() > 0) {
-    uint8_t b = Serial8.read();
-    now = micros();
-    serial_parser_process_byte(
-      inputSerial8Parser,
-      inputSerial8Commands,
-      sizeof(inputSerial8Commands) / sizeof(inputSerial8Commands[0]),
-      b,
-      now
-    );
+  // Then, consume all available bytes without blocking.
+  if (Serial8.available() > 0) {
+    uint32_t now = micros();  // one timestamp per batch is enough
+    while (Serial8.available() > 0) {
+      uint8_t b = Serial8.read();
+      serial_parser_process_byte(
+        inputSerial8Parser,
+        inputSerial8Commands,
+        sizeof(inputSerial8Commands) / sizeof(inputSerial8Commands[0]),
+        b,
+        now
+      );
+    }
   }
 #endif
 }

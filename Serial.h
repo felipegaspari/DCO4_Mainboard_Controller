@@ -6,7 +6,7 @@
 #include "serial_input_protocol.h"
 #include "serial_parser.h"
 
-//#define ENABLE_SERIAL
+// #define ENABLE_SERIAL
 #define ENABLE_SERIAL1
 #define ENABLE_SERIAL2
 #define ENABLE_SERIAL8
