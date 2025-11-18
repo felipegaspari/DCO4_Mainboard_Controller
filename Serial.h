@@ -6,7 +6,7 @@
 #include "serial_input_protocol.h"
 #include "serial_parser.h"
 
-// #define ENABLE_SERIAL
+//#define ENABLE_SERIAL
 #define ENABLE_SERIAL1
 #define ENABLE_SERIAL2
 #define ENABLE_SERIAL8
@@ -44,8 +44,10 @@ bool serialSendPWMPotsControlManualFlag = false;
 bool serialSendPWFlag = false;
 bool serialSendLFO2ToPWMFlag = false;
 
-uint8_t serialSendParamByteToDCO[2];
-uint16_t serialSendParamToDCO[2];
+// Small outgoing param queues for DCO link (used by sendSerial()).
+// Named *Buf to avoid clashing with ParamId wrapper function names.
+uint8_t  serialSendParamByteToDCOBuf[2];
+uint16_t serialSendParamToDCOBuf[2];
 
 #endif
 

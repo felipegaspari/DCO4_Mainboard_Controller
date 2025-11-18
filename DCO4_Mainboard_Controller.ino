@@ -38,6 +38,42 @@
 
 //#include "autotune.h"
 
+// #define RUNNING_AVERAGE
+// Optional microsecond benchmarking using RunningAverage, similar to DCO4_DCO.
+// To activate these measurements, define RUNNING_AVERAGE (e.g. in auxiliary.h or build flags).
+/* BENCHMARK REFERENCE NOVEMBER 2025
+--------------------------------
+MAINBOARD LOOP TIMING (us avg)
+--------------------------------
+Loop total:          7.49
+millisTimer():       -0.00
+Serial 1+8 block:    1.34
+Serial 2:            0.01
+1ms flag block:      0.86
+LFO1+LFO2:           0.54
+ADSR_update():       3.66
+PWM outputs:         3.85
+sendSerial():        0.25
+*/
+
+#ifdef RUNNING_AVERAGE
+#include "RunningAverage.h"
+
+// RunningAverage objects for main loop timing measurements (2000 samples each)
+RunningAverage ra_main_loop_total(2000);
+RunningAverage ra_main_millisTimer(2000);
+RunningAverage ra_main_serial_1_8(2000);
+RunningAverage ra_main_serial_2(2000);
+RunningAverage ra_main_1ms_block(2000);
+RunningAverage ra_main_LFOs(2000);
+RunningAverage ra_main_ADSR(2000);
+RunningAverage ra_main_PWM(2000);
+RunningAverage ra_main_sendSerial(2000);
+
+// Forward declaration for periodic debug printout
+void print_mainboard_loop_timings();
+#endif
+
 byte OSC1Interval = 24;
 byte OSC2Interval = 24;
 uint16_t OSC2Detune = 255;
@@ -144,11 +180,23 @@ void loop() {
   memset(noteEnd, 0, sizeof(noteEnd));
   memset(noteStart, 0, sizeof(noteStart));
 
+#ifdef RUNNING_AVERAGE
+  unsigned long t_millisTimer = micros();
+#endif
   millisTimer();
+#ifdef RUNNING_AVERAGE
+  ra_main_millisTimer.addValue((float)(micros() - t_millisTimer));
+#endif
 
   if (timer223microsFlag) {
+#ifdef RUNNING_AVERAGE
+    unsigned long t_serial_1_8 = micros();
+#endif
     read_serial_1();
     read_serial_8();
+#ifdef RUNNING_AVERAGE
+    ra_main_serial_1_8.addValue((float)(micros() - t_serial_1_8));
+#endif
   }
 
   // if (timer1msFlag) {
@@ -156,6 +204,9 @@ void loop() {
   // }
 
   if (timer1msFlag) {
+#ifdef RUNNING_AVERAGE
+    unsigned long t_1ms_block = micros();
+#endif
     // Periodically refresh ADSR3 values on the DCO whenever ADSR3 is enabled.
     // This restores the old behavior where ADSR3 control data was sent
     // continuously (not only when a new block was received from the input board).
@@ -168,32 +219,67 @@ void loop() {
     DRIFT_LFOs();
     // formula_update(4);
     // formula_update(2);
+#ifdef RUNNING_AVERAGE
+    ra_main_1ms_block.addValue((float)(micros() - t_1ms_block));
+#endif
   }
 
+  // Serial 2 (always processed)
+#ifdef RUNNING_AVERAGE
+  unsigned long t_serial_2 = micros();
+#endif
   read_serial_2();
+#ifdef RUNNING_AVERAGE
+  ra_main_serial_2.addValue((float)(micros() - t_serial_2));
+#endif
 
+  // LFOs
+#ifdef RUNNING_AVERAGE
+  unsigned long t_LFOs = micros();
+#endif
   LFO1();
   LFO2();
+#ifdef RUNNING_AVERAGE
+  ra_main_LFOs.addValue((float)(micros() - t_LFOs));
+#endif
 
-
+  // ADSR
+#ifdef RUNNING_AVERAGE
+  unsigned long t_ADSR = micros();
+#endif
   ADSR_update();
+#ifdef RUNNING_AVERAGE
+  ra_main_ADSR.addValue((float)(micros() - t_ADSR));
+#endif
 
-
+  // PWM outputs
+#ifdef RUNNING_AVERAGE
+  unsigned long t_PWM = micros();
+#endif
   if (manualCalibrationFlag == false) {
     setPWMOuts();
   } else {
     setPWMOutsManualCalibration();
   }
+#ifdef RUNNING_AVERAGE
+  ra_main_PWM.addValue((float)(micros() - t_PWM));
+#endif
 
+  // Outgoing serial to other boards
   if (timer99microsFlag == 1) {
+#ifdef RUNNING_AVERAGE
+    unsigned long t_sendSerial = micros();
+#endif
     sendSerial();
+#ifdef RUNNING_AVERAGE
+    ra_main_sendSerial.addValue((float)(micros() - t_sendSerial));
+#endif
   }
 
-  //unsigned long tiempodeejecuciontotal = micros() - loopStartTime;
-
-  //if (tiempodeejecuciontotal > 10) {
-  //Serial.println(tiempodeejecuciontotal);
-  //}
+  // Total loop duration (microseconds)
+#ifdef RUNNING_AVERAGE
+  ra_main_loop_total.addValue((float)(micros() - loopStartTime));
+#endif
 
 
   if (timer200msFlag) {
@@ -220,6 +306,13 @@ void loop() {
   // if (tiempodeejecucion > 2) {
   // drawTMScreen(true);
   // }
+
+#ifdef RUNNING_AVERAGE
+  // Print timing statistics periodically when benchmarking is enabled
+  if (timer500msFlag) {
+    print_mainboard_loop_timings();
+  }
+#endif
 
 #ifdef ENABLE_SERIAL
   //drawTM(tiempodeejecucion);
@@ -273,3 +366,21 @@ void loop() {
   }
 #endif
 }
+
+#ifdef RUNNING_AVERAGE
+void print_mainboard_loop_timings() {
+  Serial.println("--------------------------------");
+  Serial.println("MAINBOARD LOOP TIMING (us avg)");
+  Serial.println("--------------------------------");
+  Serial.println((String) "Loop total:          " + ra_main_loop_total.getFastAverage());
+  Serial.println((String) "millisTimer():       " + ra_main_millisTimer.getFastAverage());
+  Serial.println((String) "Serial 1+8 block:    " + ra_main_serial_1_8.getFastAverage());
+  Serial.println((String) "Serial 2:            " + ra_main_serial_2.getFastAverage());
+  Serial.println((String) "1ms flag block:      " + ra_main_1ms_block.getFastAverage());
+  Serial.println((String) "LFO1+LFO2:           " + ra_main_LFOs.getFastAverage());
+  Serial.println((String) "ADSR_update():       " + ra_main_ADSR.getFastAverage());
+  Serial.println((String) "PWM outputs:         " + ra_main_PWM.getFastAverage());
+  Serial.println((String) "sendSerial():        " + ra_main_sendSerial.getFastAverage());
+  Serial.println();
+}
+#endif

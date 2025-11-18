@@ -111,7 +111,7 @@ bool VCAADSRRestart = true;
 int16_t VCFKeytrack = 0;
 float VCFKeytrackModifier = 1;
 float VCFKeytrackPerVoice[NUM_VOICES];
-byte oscSyncMode = 0;
+uint16_t oscSyncMode = 0;
 byte voiceMode = 0;
 
 byte presetName[12] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };

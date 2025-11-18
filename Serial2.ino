@@ -1,30 +1,3 @@
-void sendParams() {
-
-  // ENABLE IF DETUNE1 is serial
-  // DETUNE1 = ((float)LFO1Level * LFO1toDCO_formula) + ((float)ADSR3Level[0] * ADSR3toDETUNE1_formula) + 1 /* + RANDOMNESS1*/;
-  // if (DETUNE1 < 0) {
-  //   DETUNE1 = 0;
-  // }
-  DETUNE2 = (uint8_t)((float)(LFO2Level + LFO2_CC_HALF) / 4096 * LFO2toOSC2DETUNE) + OSC2Detune;
-  //DETUNE1 = 2.00f;
-  //DETUNE2 = 127;
-
-  byte *b = (byte *)&DETUNE1;
-  byte dataArray[5];
-  byte ndata = 0;
-
-  dataArray[0] = b[0];
-  dataArray[1] = b[1];
-  dataArray[2] = b[2];
-  dataArray[3] = b[3];
-  dataArray[4] = (uint8_t)DETUNE2;
-
-  if (Serial2.availableForWrite() > 5) {
-    Serial2.write((char *)"p");
-    Serial2.write(dataArray, 5);
-  }
-}
-
 inline void sendSerial() {
   // if (sendDetune2Flag) {
   //   if (Serial2.availableForWrite() > 1) {
@@ -165,19 +138,19 @@ inline void sendSerial() {
   //   }
   // }
 
-  if (serialSendParamByteToDCO[0] > 0) {
-    byte bytesArray[4] = { (uint8_t)'w', serialSendParamByteToDCO[0], serialSendParamByteToDCO[1], finishByte };
+  if (serialSendParamByteToDCOBuf[0] > 0) {
+    byte bytesArray[4] = { (uint8_t)'w', serialSendParamByteToDCOBuf[0], serialSendParamByteToDCOBuf[1], finishByte };
     Serial2.write(bytesArray, 4);
 
-    serialSendParamByteToDCO[0] = 0;
-    serialSendParamByteToDCO[1] = 0;
+    serialSendParamByteToDCOBuf[0] = 0;
+    serialSendParamByteToDCOBuf[1] = 0;
   }
 
-  if (serialSendParamToDCO[0] > 0) {
-    byte bytesArray[5] = { (uint8_t)'p', (uint8_t)serialSendParamToDCO[0], highByte(serialSendParamToDCO[1]), lowByte(serialSendParamToDCO[1]), finishByte };
+  if (serialSendParamToDCOBuf[0] > 0) {
+    byte bytesArray[5] = { (uint8_t)'p', (uint8_t)serialSendParamToDCOBuf[0], highByte(serialSendParamToDCOBuf[1]), lowByte(serialSendParamToDCOBuf[1]), finishByte };
     Serial2.write(bytesArray, 5);
 
-    serialSendParamToDCO[0] = 0;
+    serialSendParamToDCOBuf[0] = 0;
   }
 }
 
@@ -227,4 +200,38 @@ inline void serialSendParamToDCOFunction(uint8_t paramNumber, int paramValue)
   while(Serial2.availableForWrite() < 5) {};
   byte bytesArray[5] = {(uint8_t)'p', (uint8_t)paramNumber, highByte(paramValue), lowByte(paramValue), finishByte};
   Serial2.write(bytesArray, 5);
+}
+
+// -------------------------------------------------------------------
+// ParamId-friendly overloads for outgoing parameter sends
+// -------------------------------------------------------------------
+
+// Send 16-bit param to screen using ParamId.
+inline void serial_send_param_change(ParamId id, uint16_t paramValue) {
+  serial_send_param_change(static_cast<byte>(id), paramValue);
+}
+
+// Send 32-bit param to DCO using ParamId.
+inline void serialSendParam32ToDCO(ParamId id, uint32_t paramValue) {
+  serialSendParam32ToDCO(static_cast<byte>(id), paramValue);
+}
+
+// Send 32-bit param to Screen using ParamId.
+inline void serialSendParam32ToScreen(ParamId id, uint32_t paramValue) {
+  serialSendParam32ToScreen(static_cast<byte>(id), paramValue);
+}
+
+// Send 8-bit param to Screen using ParamId.
+inline void serialSendParamByteToScreen(ParamId id, byte paramValue) {
+  serialSendParamByteToScreen(static_cast<byte>(id), paramValue);
+}
+
+// Send 8-bit param to DCO using ParamId.
+inline void serialSendParamByteToDCO(ParamId id, byte paramValue) {
+  serialSendParamByteToDCOFunction(static_cast<byte>(id), paramValue);
+}
+
+// Send 16-bit param to DCO using ParamId.
+inline void serialSendParamToDCO(ParamId id, int paramValue) {
+  serialSendParamToDCOFunction(static_cast<byte>(id), paramValue);
 }

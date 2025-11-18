@@ -335,6 +335,14 @@ static void apply_param_gap_from_dco(int32_t v) {
   serialSendParam32ToScreen(PARAM_GAP_FROM_DCO, (uint32_t)v);
 }
 
+// 155: manual calibration offsets reported from DCO (packed index/offset),
+// forwarded unchanged to the screen so the UI can sync its local offsets.
+static void apply_param_manual_calibration_offset_from_dco(int32_t v) {
+  // v's lower 16 bits: [index:8 | offset:8]; keep as-is for the screen.
+  serialSendParam32ToScreen(PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO,
+                            (uint32_t)(uint16_t)v);
+}
+
 // ---- Parameter table ------------------------------------------------
 
 static const ParamDescriptorT<int32_t> paramTable[] = {
@@ -401,7 +409,9 @@ static const ParamDescriptorT<int32_t> paramTable[] = {
   { PARAM_MANUAL_CALIBRATION_STAGE, apply_param_manual_calibration_stage },
   { PARAM_MANUAL_CALIBRATION_OFFSET,apply_param_manual_calibration_offset },
 
-  { PARAM_GAP_FROM_DCO,             apply_param_gap_from_dco }
+  { PARAM_GAP_FROM_DCO,             apply_param_gap_from_dco },
+  { PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO,
+                                   apply_param_manual_calibration_offset_from_dco }
 };
 
 static const size_t paramTableSize =
