@@ -164,21 +164,27 @@ void serial_send_param_change(byte param, uint16_t paramValue) {
 }
 
 void serialSendParam32ToDCO(byte paramNumber, uint32_t paramValue) {
-
-uint8_t *b = (uint8_t *)&paramValue;
-
+  uint8_t *b = (uint8_t *)&paramValue;
   byte bytesArray[7] = { (uint8_t)'x', paramNumber, b[0], b[1], b[2], b[3], finishByte };
   while (Serial2.availableForWrite() < 7) {}
   Serial2.write(bytesArray, 7);
 }
 
 void serialSendParam32ToScreen(byte paramNumber, uint32_t paramValue) {
-
-uint8_t *b = (uint8_t *)&paramValue;
-
+  uint8_t *b = (uint8_t *)&paramValue;
   byte bytesArray[7] = { (uint8_t)'x', paramNumber, b[0], b[1], b[2], b[3], finishByte };
   while (Serial1.availableForWrite() < 7) {}
   Serial1.write(bytesArray, 7);
+}
+
+// Send 32-bit param to the input controller over Serial8 (mainboard side).
+void serialSendParam32ToInput(byte paramNumber, uint32_t paramValue) {
+  uint8_t *b = (uint8_t *)&paramValue;
+  byte bytesArray[7] = { (uint8_t)'x', paramNumber, b[0], b[1], b[2], b[3], finishByte };
+#ifdef ENABLE_SERIAL8
+  while (Serial8.availableForWrite() < 7) {}
+  Serial8.write(bytesArray, 7);
+#endif
 }
 
 inline void serialSendParamByteToScreen(byte paramNumber, byte paramValue)
@@ -219,6 +225,11 @@ inline void serialSendParam32ToDCO(ParamId id, uint32_t paramValue) {
 // Send 32-bit param to Screen using ParamId.
 inline void serialSendParam32ToScreen(ParamId id, uint32_t paramValue) {
   serialSendParam32ToScreen(static_cast<byte>(id), paramValue);
+}
+
+// Send 32-bit param to Input Controller using ParamId (over Serial8).
+inline void serialSendParam32ToInput(ParamId id, uint32_t paramValue) {
+  serialSendParam32ToInput(static_cast<byte>(id), paramValue);
 }
 
 // Send 8-bit param to Screen using ParamId.

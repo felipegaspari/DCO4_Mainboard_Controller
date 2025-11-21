@@ -113,6 +113,12 @@ static void main_handle_param32(char, const uint8_t* payload, uint8_t len) {
   }
   ParamFrame frame;
   decode_param_x(payload, frame);
+  // Debug: trace incoming 32-bit params from DCO, especially manual
+  // calibration offsets (155) so we can follow the batch through.
+  // if (frame.id == (uint8_t)PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO) {
+  //   Serial.print("[MB] RX PARAM32 from DCO id=155 raw=0x");
+  //   Serial.println((uint32_t)frame.value, HEX);
+  // }
   update_parameters(frame.id, frame.value);
 }
 

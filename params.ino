@@ -28,7 +28,6 @@
 //   3) Add an entry to paramTable[] mapping your ParamId to the new function.
 //   4) Make sure all senders use the same ParamId and appropriate value range.
 
-
 // ---- Apply functions for each parameter -----------------------------
 
 // 1: saw on/off
@@ -297,9 +296,7 @@ static void apply_param_pwm_pots_manual(int32_t v) {
 }
 
 // 126: ADSR3 enabled flag
-static void apply_param_adsr3_enabled(int32_t v) {
-  ADSR3Enabled = (v != 0);
-}
+static void apply_param_adsr3_enabled(int32_t v) { ADSR3Enabled = (v != 0); }
 
 // 127: function key (UI-level, currently unused)
 static void apply_param_function_key(int32_t /*v*/) {
@@ -335,93 +332,112 @@ static void apply_param_gap_from_dco(int32_t v) {
   serialSendParam32ToScreen(PARAM_GAP_FROM_DCO, (uint32_t)v);
 }
 
-// 155: manual calibration offsets reported from DCO (packed index/offset),
-// forwarded unchanged to the screen so the UI can sync its local offsets.
+// 155: manual calibration offsets reported from DCO (packed index/offset).
+// Forward them ONLY to the input-controller link; the screen should not
+// receive or interpret these frames directly.
 static void apply_param_manual_calibration_offset_from_dco(int32_t v) {
-  // v's lower 16 bits: [index:8 | offset:8]; keep as-is for the screen.
-  serialSendParam32ToScreen(PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO,
-                            (uint32_t)(uint16_t)v);
+  // v's lower 16 bits: [index:8 | offset:8]; keep as-is for the input board.
+  uint16_t packed16 = (uint16_t)v;
+  uint8_t oscIndex = (uint8_t)(packed16 >> 8);
+  int8_t offset = (int8_t)(packed16 & 0xFF);
+
+  // Debug: log what we unpacked from the DCO and what we're about to send.
+  // Serial.print("[MB] apply 155: idx=");
+  // Serial.print((int)oscIndex);
+  // Serial.print(" off=");
+  // Serial.print((int)offset);
+  // Serial.print(" packed16=0x");
+  // Serial.println((uint16_t)packed16, HEX);
+
+  // Use the same 32-bit PARAM 'x' frame mechanism that is already used
+  // for gap reporting, but only towards the INPUT link (Serial8).
+  // Serial.println("[MB]  -> TX 155 to INPUT  (Serial8, 'x')");
+  serialSendParam32ToInput(PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO,
+                           (uint32_t)packed16);
+}
+
+// 156: explicit "store manual calibration offsets" command.
+// Forward this to the DCO so it can persist its manualCalibrationOffset[]
+// array to the filesystem. The value itself is not used; only the edge.
+static void apply_param_manual_calibration_store(int32_t /*v*/) {
+  serialSendParamByteToDCOFunction(PARAM_MANUAL_CALIBRATION_STORE, 1);
 }
 
 // ---- Parameter table ------------------------------------------------
 
 static const ParamDescriptorT<int32_t> paramTable[] = {
-  { PARAM_SAW_STATUS,               apply_param_saw_status },
-  { PARAM_SAW2_STATUS,              apply_param_saw2_status },
-  { PARAM_TRI_STATUS,               apply_param_tri_status },
-  { PARAM_SINE_STATUS,              apply_param_sine_status },
+    {PARAM_SAW_STATUS, apply_param_saw_status},
+    {PARAM_SAW2_STATUS, apply_param_saw2_status},
+    {PARAM_TRI_STATUS, apply_param_tri_status},
+    {PARAM_SINE_STATUS, apply_param_sine_status},
 
-  { PARAM_SQR1_STATUS,              apply_param_sqr1_status },
-  { PARAM_SQR2_STATUS,              apply_param_sqr2_status },
+    {PARAM_SQR1_STATUS, apply_param_sqr1_status},
+    {PARAM_SQR2_STATUS, apply_param_sqr2_status},
 
-  { PARAM_RESONANCE_COMPENSATION,   apply_param_resonance_comp },
-  { PARAM_VCA_ADSR_RESTART,         apply_param_vca_adsr_restart },
-  { PARAM_VCF_ADSR_RESTART,         apply_param_vcf_adsr_restart },
+    {PARAM_RESONANCE_COMPENSATION, apply_param_resonance_comp},
+    {PARAM_VCA_ADSR_RESTART, apply_param_vca_adsr_restart},
+    {PARAM_VCF_ADSR_RESTART, apply_param_vcf_adsr_restart},
 
-  { PARAM_ADSR3_TO_OSC_SELECT,      apply_param_adsr3_to_osc_select },
-  { PARAM_LFO1_WAVEFORM,            apply_param_lfo1_waveform },
-  { PARAM_LFO2_WAVEFORM,            apply_param_lfo2_waveform },
-  { PARAM_OSC1_INTERVAL,            apply_param_osc1_interval },
-  { PARAM_OSC2_INTERVAL,            apply_param_osc2_interval },
-  { PARAM_OSC2_DETUNE_VAL,          apply_param_osc2_detune },
-  { PARAM_LFO2_TO_DETUNE2,          apply_param_lfo2_to_detune2 },
-  { PARAM_OSC_SYNC_MODE,            apply_param_osc_sync_mode },
-  { PARAM_PORTAMENTO_TIME,          apply_param_portamento_time },
+    {PARAM_ADSR3_TO_OSC_SELECT, apply_param_adsr3_to_osc_select},
+    {PARAM_LFO1_WAVEFORM, apply_param_lfo1_waveform},
+    {PARAM_LFO2_WAVEFORM, apply_param_lfo2_waveform},
+    {PARAM_OSC1_INTERVAL, apply_param_osc1_interval},
+    {PARAM_OSC2_INTERVAL, apply_param_osc2_interval},
+    {PARAM_OSC2_DETUNE_VAL, apply_param_osc2_detune},
+    {PARAM_LFO2_TO_DETUNE2, apply_param_lfo2_to_detune2},
+    {PARAM_OSC_SYNC_MODE, apply_param_osc_sync_mode},
+    {PARAM_PORTAMENTO_TIME, apply_param_portamento_time},
 
-  { PARAM_VCF_KEYTRACK,             apply_param_vcf_keytrack },
-  { PARAM_VELOCITY_TO_VCF,          apply_param_velocity_to_vcf },
-  { PARAM_VELOCITY_TO_VCA,          apply_param_velocity_to_vca },
-  { PARAM_SQR1_LEVEL,               apply_param_sqr1_level },
-  { PARAM_SQR2_LEVEL,               apply_param_sqr2_level },
-  { PARAM_SUB_LEVEL,                apply_param_sub_level },
+    {PARAM_VCF_KEYTRACK, apply_param_vcf_keytrack},
+    {PARAM_VELOCITY_TO_VCF, apply_param_velocity_to_vcf},
+    {PARAM_VELOCITY_TO_VCA, apply_param_velocity_to_vca},
+    {PARAM_SQR1_LEVEL, apply_param_sqr1_level},
+    {PARAM_SQR2_LEVEL, apply_param_sqr2_level},
+    {PARAM_SUB_LEVEL, apply_param_sub_level},
 
-  { PARAM_CALIBRATION_VALUE,        apply_param_calibration_value },
+    {PARAM_CALIBRATION_VALUE, apply_param_calibration_value},
 
-  { PARAM_VOICE_MODE,               apply_param_voice_mode },
-  { PARAM_UNISON_DETUNE,            apply_param_unison_detune },
-  { PARAM_ANALOG_DRIFT_AMOUNT,      apply_param_analog_drift_amount },
-  { PARAM_ANALOG_DRIFT_SPEED,       apply_param_analog_drift_speed },
-  { PARAM_ANALOG_DRIFT_SPREAD,      apply_param_analog_drift_spread },
-  { PARAM_SYNC_MODE,                apply_param_sync_mode },
+    {PARAM_VOICE_MODE, apply_param_voice_mode},
+    {PARAM_UNISON_DETUNE, apply_param_unison_detune},
+    {PARAM_ANALOG_DRIFT_AMOUNT, apply_param_analog_drift_amount},
+    {PARAM_ANALOG_DRIFT_SPEED, apply_param_analog_drift_speed},
+    {PARAM_ANALOG_DRIFT_SPREAD, apply_param_analog_drift_spread},
+    {PARAM_SYNC_MODE, apply_param_sync_mode},
 
-  { PARAM_LFO1_TO_DCO,              apply_param_lfo1_to_dco },
-  { PARAM_LFO1_SPEED,               apply_param_lfo1_speed },
-  { PARAM_LFO2_SPEED,               apply_param_lfo2_speed },
+    {PARAM_LFO1_TO_DCO, apply_param_lfo1_to_dco},
+    {PARAM_LFO1_SPEED, apply_param_lfo1_speed},
+    {PARAM_LFO2_SPEED, apply_param_lfo2_speed},
 
-  { PARAM_VCA_LEVEL,                apply_param_vca_level },
-  { PARAM_LFO1_TO_VCA,              apply_param_lfo1_to_vca },
+    {PARAM_VCA_LEVEL, apply_param_vca_level},
+    {PARAM_LFO1_TO_VCA, apply_param_lfo1_to_vca},
 
-  { PARAM_LFO2_TO_PW,               apply_param_lfo2_to_pw },
-  { PARAM_ADSR3_TO_PWM,             apply_param_adsr3_to_pwm },
-  { PARAM_ADSR3_TO_DETUNE1,         apply_param_adsr3_to_detune1 },
+    {PARAM_LFO2_TO_PW, apply_param_lfo2_to_pw},
+    {PARAM_ADSR3_TO_PWM, apply_param_adsr3_to_pwm},
+    {PARAM_ADSR3_TO_DETUNE1, apply_param_adsr3_to_detune1},
 
-  { PARAM_ADSR1_ATTACK_CURVE,       apply_param_adsr1_attack_curve },
-  { PARAM_ADSR1_DECAY_CURVE,        apply_param_adsr1_decay_curve },
-  { PARAM_ADSR2_ATTACK_CURVE,       apply_param_adsr2_attack_curve },
-  { PARAM_ADSR2_DECAY_CURVE,        apply_param_adsr2_decay_curve },
+    {PARAM_ADSR1_ATTACK_CURVE, apply_param_adsr1_attack_curve},
+    {PARAM_ADSR1_DECAY_CURVE, apply_param_adsr1_decay_curve},
+    {PARAM_ADSR2_ATTACK_CURVE, apply_param_adsr2_attack_curve},
+    {PARAM_ADSR2_DECAY_CURVE, apply_param_adsr2_decay_curve},
 
-  { PARAM_PWM_POTS_CONTROL_MANUAL,  apply_param_pwm_pots_manual },
-  { PARAM_ADSR3_ENABLED,            apply_param_adsr3_enabled },
-  { PARAM_FUNCTION_KEY,             apply_param_function_key },
+    {PARAM_PWM_POTS_CONTROL_MANUAL, apply_param_pwm_pots_manual},
+    {PARAM_ADSR3_ENABLED, apply_param_adsr3_enabled},
+    {PARAM_FUNCTION_KEY, apply_param_function_key},
 
-  { PARAM_CALIBRATION_FLAG,         apply_param_calibration_flag },
-  { PARAM_MANUAL_CALIBRATION_FLAG,  apply_param_manual_calibration_flag },
-  { PARAM_MANUAL_CALIBRATION_STAGE, apply_param_manual_calibration_stage },
-  { PARAM_MANUAL_CALIBRATION_OFFSET,apply_param_manual_calibration_offset },
+    {PARAM_CALIBRATION_FLAG, apply_param_calibration_flag},
+    {PARAM_MANUAL_CALIBRATION_FLAG, apply_param_manual_calibration_flag},
+    {PARAM_MANUAL_CALIBRATION_STAGE, apply_param_manual_calibration_stage},
+    {PARAM_MANUAL_CALIBRATION_OFFSET, apply_param_manual_calibration_offset},
 
-  { PARAM_GAP_FROM_DCO,             apply_param_gap_from_dco },
-  { PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO,
-                                   apply_param_manual_calibration_offset_from_dco }
-};
+    {PARAM_GAP_FROM_DCO, apply_param_gap_from_dco},
+    {PARAM_MANUAL_CALIBRATION_OFFSET_FROM_DCO, apply_param_manual_calibration_offset_from_dco},
+    {PARAM_MANUAL_CALIBRATION_STORE, apply_param_manual_calibration_store}
+    };
 
-static const size_t paramTableSize =
-  sizeof(paramTable) / sizeof(paramTable[0]);
+static const size_t paramTableSize = sizeof(paramTable) / sizeof(paramTable[0]);
 
 // Public entry point: called from Serial handlers.
 inline void update_parameters(byte paramNumber, int32_t paramValue) {
   param_router_apply<int32_t>(paramTable, paramTableSize,
-                              static_cast<uint16_t>(paramNumber),
-                              paramValue);
+                              static_cast<uint16_t>(paramNumber), paramValue);
 }
-
-
