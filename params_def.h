@@ -30,6 +30,7 @@ enum ParamId : uint8_t {
   PARAM_VCF_ADSR_RESTART         = 9,   // VCFADSRRestart (mainboard-local)
 
   // --- Shared routing / oscillator parameters ----------------------
+  // DCO meanings: 0=OSC1, 1=OSC2, 2=OSC1+OSC2, 3=OSC3, 4=all
   PARAM_ADSR3_TO_OSC_SELECT      = 10,  // ADSR3ToOscSelect
 
   PARAM_LFO1_WAVEFORM            = 11,
@@ -68,6 +69,11 @@ enum ParamId : uint8_t {
 
   // 32: DCO-only portamento mode selector (currently not used on mainboard)
   PARAM_PORTAMENTO_MODE          = 32,
+
+  // DCO3 monosynth OSC3 (shared with DCO; Mainboard forwards, no local OSC3 CV devices)
+  PARAM_OSC3_INTERVAL            = 33,  // OSC3Interval / OSC3_interval
+  PARAM_OSC3_DETUNE_VAL          = 34,  // OSC3Detune / OSC3DetuneVal
+  PARAM_LFO2_TO_DETUNE3          = 35,  // LFO2toOSC3DETUNE / LFO2toDETUNE3
 
   // --- LFO routing (shared) -----------------------------------------
   PARAM_LFO1_TO_DCO              = 40,

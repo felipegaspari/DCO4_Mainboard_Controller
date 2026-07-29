@@ -1,42 +1,48 @@
-## DCO4 – Mainboard Controller (STM32 modulation brain)
+# DCO3-MONOSYNTH – Mainboard Controller (STM32)
 
-Firmware for the **DCO4 mainboard**: an STM32 Arduino sketch that owns per-voice **ADSRs**, **LFOs**, **filter/VCA/resonance CVs** (hardware timer PWM), **square/sub levels** (MCP4728 I2C DACs), **analog wave select** (74HC595), and **parameter routing** between the DCO voice board, input controller, and screen.
+Firmware for the **Mainboard** of DCO3-MONOSYNTH: the STM32 modulation brain that owns **ADSRs**, **LFOs**, **filter/VCA/resonance CVs** (timer PWM), **square/sub levels** (MCP4728), **analog wave select** (74HC595), and **parameter routing** between the DCO voice board, input controller, and screen.
 
-Four voices (`NUM_VOICES 4`). Single-threaded `setup()` / `loop()` (not dual-core).
+Based on DCO4 Mainboard, retargeted for **1 voice × 3 oscillators** on the DCO (OSC3 is forward-only here — no OSC3 CV/DAC/mux on this board).
 
-How this board fits the instrument: [`docs/SYSTEM_OVERVIEW.md`](docs/SYSTEM_OVERVIEW.md) (stub) → canonical overview in sibling **DCO4_DCO**.
+Single-threaded `setup()` / `loop()` (not dual-core).
 
-All detailed documentation lives under **[`docs/`](docs/)**. This README is the entry point.
+How this board fits the instrument: canonical overview in [`../DCO/docs/SYSTEM_OVERVIEW.md`](../DCO/docs/SYSTEM_OVERVIEW.md); local UART stub in [`docs/SYSTEM_OVERVIEW.md`](docs/SYSTEM_OVERVIEW.md).
 
----
+## Target model
+
+| Item | Value |
+|------|--------|
+| Voices | `NUM_VOICES = 1` |
+| Filters | `NUM_FILTERS = 2` (both outs currently share voice-0 VCF; unused CVs parked in `PWM.ino`) |
+| OSC3 | ParamIds **33–35** store + forward to DCO only |
+| ADSR3→osc | **0–4** (OSC1 / OSC2 / both / OSC3 / all), forwarded |
+| Manual cal | Stage = osc index **0..2**; OSC3 has no mux/SQR path |
+
+Commented DCO4 voice/LFO slots remain in headers for a later paraphonic path.
+
+## Features
+
+- **Modulation:** 3 Bézier ADSRs (VCA, VCF, ADSR3 for DCO); LFO1 / LFO2; per-voice VCF drift LFO
+- **CV outs:** Resonance, cutoff, VCA via STM32 timer PWM; SQR1/SQR2/Sub via MCP4728 I2C DACs (comments may still say DCO4 V1–V4; OSC3 has no DAC channel)
+- **Wave select:** Dual 74HC595 mux (saw / saw2 / tri / sine); unused voice slots forced off
+- **Serial:** 2.5 Mbaud to DCO (Serial2), Input (Serial8), Screen (Serial1); USB Serial @ 2 Mbaud for debug
+- **Params:** Table-driven `ParamId` router; apply locally and/or forward to DCO
+- **Manual calibration:** Special PWM/mux path when `manualCalibrationFlag` is set
+
+**Not active today:** presets (owned by Input); `flashData` / BU2505 / `SPI_settings` live only under [`_removed/`](_removed/); Screen module and autotune includes off. `_removed/` is not compiled.
 
 ## Documentation
 
 | Doc | Status | Contents |
 |-----|--------|----------|
-| [`docs/SYSTEM_OVERVIEW.md`](docs/SYSTEM_OVERVIEW.md) | Current | Stub → canonical four-board overview + local UART table |
-| [`docs/MODULATION_PIPELINE.md`](docs/MODULATION_PIPELINE.md) | Current | Notes / params → ADSR/LFO → PWM/DAC → DCO serial |
+| [`docs/SYSTEM_OVERVIEW.md`](docs/SYSTEM_OVERVIEW.md) | Current | Local UART table; points to DCO system overview |
+| [`docs/MODULATION_PIPELINE.md`](docs/MODULATION_PIPELINE.md) | Partially stale | Notes / params → ADSR/LFO → PWM/DAC → DCO serial (may still say DCO4 / 4-voice) |
 | [`docs/CV_AND_PINS.md`](docs/CV_AND_PINS.md) | Current | Timer PWM, MCP4728, 74HC595, UART pins |
-| [`docs/FILE_INDEX.md`](docs/FILE_INDEX.md) | Current | Every file + functions + call sites |
-| [`docs/REFERENCE_AI.md`](docs/REFERENCE_AI.md) | Current | Deep semantic map for developers / AI |
+| [`docs/FILE_INDEX.md`](docs/FILE_INDEX.md) | Partially stale | File / function map (may still say DCO4 / 4-voice) |
+| [`docs/REFERENCE_AI.md`](docs/REFERENCE_AI.md) | Partially stale | Deep semantic map (prefer this README for monosynth facts) |
 | [`docs/README_serial_and_params.md`](docs/README_serial_and_params.md) | Current | Shared serial / ParamId how-to |
 
-**Suggested reading order:** this README → system stub → modulation pipeline / CV pins → FILE_INDEX or REFERENCE_AI → serial how-to as needed.
-
----
-
-## Features
-
-- **Modulation:** 3 Bézier ADSRs per voice (VCA, VCF, ADSR3 for DCO); LFO1 / LFO2; per-voice VCF drift LFOs.
-- **CV outs:** Resonance, cutoff, VCA via STM32 timer PWM; SQR1/SQR2/Sub via three MCP4728 DACs.
-- **Wave select:** Dual 74HC595 mux (saw / saw2 / tri / sine enables).
-- **Serial:** 2.5 Mbaud links to DCO (Serial2), Input (Serial8), Screen (Serial1); USB Serial @ 2 Mbaud for debug.
-- **Params:** Table-driven `ParamId` router; many IDs applied locally and forwarded to the DCO.
-- **Manual calibration:** Special PWM/mux path when `manualCalibrationFlag` is set.
-
-**Not active in this firmware today:** local SD/EEPROM preset store (`flashData.ino` commented — presets owned by Input), SPI BU2505FV (`ENABLE_SPI` off), on-board Screen module, autotune include.
-
----
+**Suggested reading order:** this README → DCO system overview → modulation / CV pins → FILE_INDEX or REFERENCE_AI (with stale-count caveat) → serial how-to.
 
 ## High-level architecture
 
@@ -44,16 +50,14 @@ All detailed documentation lives under **[`docs/`](docs/)**. This README is the 
 |-----------|-------|------|
 | Entry / loop | `DCO4_Mainboard_Controller.ino` | Init + soft-timer schedule |
 | Serial RX | `Serial.ino`, `serial_*.h` | DCO notes/params; Input blocks/params; Screen RX stub |
-| Serial TX | `Serial2.ino` | ADSR3/`PW`/param forwards; Screen/Input helpers |
-| Params | `params.ino`, `params_def.h`, `param_router.h` | Apply + forward |
+| Serial TX | `Serial2.ino` | ADSR3 `'s'` + PW `'f'` flush; immediate `*Function` param forwards; Screen/Input `'x'` helpers |
+| Params | `params.ino`, `params_def.h`, `param_router.h` | Apply + forward (incl. OSC3 33–35) |
 | ADSR / LFO | `ADSR.*`, `LFO.*` | Envelope and LFO levels |
 | Formulas | `formulas.*` | Depth/speed scalars |
 | CV write | `PWM.ino`, `Timers.*`, `MCP4728.ino` | Timer PWM + I2C DACs |
 | Waves | `waveSelector.*` | 74HC595 |
 
 Hot path every `loop`: Serial2 → LFO1/2 → ADSR_update → setPWMOuts (or manual-cal). Details: [`docs/MODULATION_PIPELINE.md`](docs/MODULATION_PIPELINE.md).
-
----
 
 ## Hardware / UART summary
 
@@ -66,31 +70,29 @@ Hot path every `loop`: Serial2 → LFO1/2 → ADSR_update → setPWMOuts (or man
 
 I2C MCP4728: SDA **PB9**, SCL **PB8**, 1 MHz. Full CV pin table: [`docs/CV_AND_PINS.md`](docs/CV_AND_PINS.md).
 
----
-
 ## Building
 
-- **Toolchain:** Arduino IDE / CLI with STM32 Arduino core.
+- **Toolchain:** Arduino IDE / CLI with STM32 Arduino core (no FQBN checked in yet — board part TBD).
 - **Sketch:** open `DCO4_Mainboard_Controller.ino`.
-- **Libraries:** `ADSR_Bezier`, `mo-lfo`, `MCP4728_multiaddress`, `RoxMux`, `Wire`; optional `RunningAverage` if benchmarking; `STM32SD` only if re-enabling SD presets.
+- **Libraries:** `ADSR_Bezier`, `mo-lfo`, `MCP4728_multiaddress`, `RoxMux`, `Wire`; optional `RunningAverage` if benchmarking.
 
 ### Feature flags
 
 | Flag | Default | Effect |
 |------|---------|--------|
-| `ENABLE_SD` | **on** (main sketch) | SDMMC pin reservation / TIM8 CH4 gating; preset code still commented |
-| `ENABLE_SPI` | **off** | SPI / BU2505 path |
+| `NUM_VOICES` | **1** | Voice array sizes / live ADSR+LFO instances |
+| `NUM_FILTERS` | **2** | Active filter CV outs; extras parked |
+| `ENABLE_SD` | **on** (main sketch) | SDMMC pin reservation / TIM8 CH4 gating only (no live preset I/O) |
+| `ENABLE_SPI` | **off** | SPI / BU2505 path removed to `_removed/` |
 | `ENABLE_SERIAL*` | **on** (`Serial.h`) | Per-UART compile-in |
 | `ENABLE_SCREEN` | **off** | Would call `initScreen()` |
 | `RUNNING_AVERAGE` | **off** | Loop micro-benchmarks |
-| `NUM_VOICES` | **4** | Voice array sizes |
 | `build_opt.h` | always | Larger Serial RX/TX buffers |
-
----
 
 ## Contributing / hacking
 
-- Start with [`docs/REFERENCE_AI.md`](docs/REFERENCE_AI.md) and [`docs/FILE_INDEX.md`](docs/FILE_INDEX.md).
+- Prefer this README for monosynth voice/filter counts until deep docs are refreshed.
 - Keep `ParamId` numbers stable across boards (`params_def.h`).
-- Prefer routing new controls through `params.ino` + serial protocol headers rather than ad-hoc UART bytes.
+- Route new controls through `params.ino` + serial protocol headers rather than ad-hoc UART bytes.
 - When changing CV math, keep [`docs/CV_AND_PINS.md`](docs/CV_AND_PINS.md) and [`docs/MODULATION_PIPELINE.md`](docs/MODULATION_PIPELINE.md) in sync.
+- Excised unused code lives under [`_removed/`](_removed/) and is not compiled.

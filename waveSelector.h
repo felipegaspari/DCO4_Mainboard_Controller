@@ -14,26 +14,6 @@ Rox74HC595<2> waveSelectorMux;
 #define PIN_CLK PE3    // pin 11 on 74HC595 (CLK)   / SH
 #define PIN_PWM -1
 
-uint8_t saw1Pin = 0;
-uint8_t saw1_2Pin = 5;
-uint8_t tri1Pin = 0;
-uint8_t sine1Pin = 0;
-
-uint8_t saw2Pin = 0;
-uint8_t saw2_2Pin = 0;
-uint8_t tri2Pin = 0;
-uint8_t sine2Pin = 0;
-
-uint8_t saw3Pin = 0;
-uint8_t saw3_2Pin = 0;
-uint8_t tri3Pin = 0;
-uint8_t sine3Pin = 0;
-
-uint8_t saw4Pin = 0;
-uint8_t saw4_2Pin = 0;
-uint8_t tri4Pin = 0;
-uint8_t sine4Pin = 0;
-
 // ??
 // uint8_t triPins[4] = { 2, 6, 10, 14 };
 // uint8_t sinePins[4] = { 1, 5, 9, 13 };

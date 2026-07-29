@@ -1,13 +1,7 @@
 //1 VCFKeytrack
 //2 ADSR2toVCF
-//3 LFO1toVCF
 //4 LFO2toVCF
-//5 ADSR3toPWM
-//6 LFO1toPWM
 //7 LFO1toVCA
-//8 ADSR1toVCA
-//9 LFO1toDCO
-//10 ADSR3toDETUNE1
 
 // Recompute a modulation depth/keytrack formula scalar (see case index comments above).
 void formula_update(byte formulaN) {
@@ -22,32 +16,11 @@ void formula_update(byte formulaN) {
     case 2:
       ADSR2toVCF_formula = (float)1 / 512 * ADSR2toVCF;
       break;
-    case 3:
-      LFO1toVCF_formula = (float)1 / 512 * LFO1toVCF;
-      break;
     case 4:
       LFO2toVCF_formula = (float)1 / 512 * LFO2toVCF;
       break;
-    case 5:
-      ADSR3toPWM_formula = (float)1 / 512 * ADSR3toPWM;
-      break;
-    case 6:
-      LFO1toPWM_formula = (float)1 / 512 * LFO1toPWM;
-      break;
     case 7:
       LFO1toVCA_formula = (float)1 / 512 * LFO1toVCA;
-      break;
-    case 8:
-      ADSR1toVCA_formula = (float)1 / 512 * ADSR1toVCA;
-      break;
-    case 9:
-      LFO1toDCO_formula = (float)1 / 1080000 * LFO1toDCO;
-      break;
-    case 10:
-      ADSR3toDETUNE1_formula = (float)1 / 1080000 * ADSR3toDETUNE1;
-      break;
-    case 11:
-      LFO2toPWM_formula = (float)1 / 512 * LFO2toPWM;
       break;
   }
 }

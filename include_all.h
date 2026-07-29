@@ -13,8 +13,6 @@
 
 //#include "Screen.h"
 
-#include "flashData.h"
-
 #include "formulas.h"
 #include "tables.h"
 #include "waveSelector.h"

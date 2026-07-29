@@ -3,43 +3,6 @@ inline void read_serial_1() {
   while (Serial1.available() > 0) {
     char commandCharacter = Serial1.read();  //we use characters (letters) for controlling the switch-case
     switch (commandCharacter) {
-        //     case 'r':
-        // {
-        //   byte presetNameBytes[8] = { 32, 32, 32, 32, 32, 32, 32, 32 };
-        //   while (Serial1.available() < 1) {}
-        //   presetNumber = Serial1.read();
-        //   while (Serial1.available() < 1) {}
-
-        //   Serial1.readBytes(presetNameBytes, 8);
-        //   for (int i = 0; i < 8; i++) {
-        //     presetName[i] = presetNameBytes[i];
-        //   }
-        //   break;
-        // }
-        // case 's':
-        //   {
-        //     while (Serial1.available() < 1) {}
-        //     serialSignal = Serial1.read();
-        //     switch(serialSignal) {
-        //       case 0:
-        //       break;
-        //       case 1:
-        //       break;
-        //       case 2:
-        //       break;
-        //       case 3:
-        //       break;
-        //       case 4:
-        //       // should get the number to save
-        //       break;
-        //       case 5:
-        //       writePreset(0);
-        //       break;
-        //     }
-
-        //     break;
-        //   }
-
       default:
         break;
     }
@@ -72,6 +35,9 @@ static void main_handle_note_on(char, const uint8_t* payload, uint8_t len) {
   uint8_t velo    = payload[1];
   uint8_t noteVal = payload[2];
 
+  if (voice_n >= NUM_VOICES) {
+    return;
+  }
   velocity[voice_n]  = velo;
   note[voice_n]      = noteVal;
   noteStart[voice_n] = 1;
@@ -84,6 +50,9 @@ static void main_handle_note_off(char, const uint8_t* payload, uint8_t len) {
     return;
   }
   uint8_t voice_n = payload[0];
+  if (voice_n >= NUM_VOICES) {
+    return;
+  }
   noteEnd[voice_n]   = 1;
   noteStart[voice_n] = 0;
 }

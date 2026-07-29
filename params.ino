@@ -84,6 +84,7 @@ static void apply_param_vcf_adsr_restart(int32_t v) {
 }
 
 // 10: ADSR3 to oscillator selection, forward to DCO
+// DCO: 0=OSC1, 1=OSC2, 2=OSC1+OSC2, 3=OSC3, 4=all
 static void apply_param_adsr3_to_osc_select(int32_t v) {
   ADSR3ToOscSelect = (int8_t)v;
   serialSendParamByteToDCOFunction(PARAM_ADSR3_TO_OSC_SELECT, (uint8_t)v);
@@ -125,6 +126,24 @@ static void apply_param_osc2_detune(int32_t v) {
 static void apply_param_lfo2_to_detune2(int32_t v) {
   LFO2toOSC2DETUNE = (int16_t)v;
   serialSendParamByteToDCOFunction(PARAM_LFO2_TO_DETUNE2, (uint8_t)v);
+}
+
+// 33: OSC3 interval, forward to DCO (no Mainboard OSC3 hardware)
+static void apply_param_osc3_interval(int32_t v) {
+  OSC3Interval = (int8_t)v;
+  serialSendParamByteToDCOFunction(PARAM_OSC3_INTERVAL, (uint8_t)v);
+}
+
+// 34: OSC3 detune amount, forward to DCO as 16-bit
+static void apply_param_osc3_detune(int32_t v) {
+  OSC3Detune = (int16_t)v;
+  serialSendParamToDCOFunction(PARAM_OSC3_DETUNE_VAL, (int16_t)v);
+}
+
+// 35: LFO2 amount -> OSC3 detune, forward to DCO
+static void apply_param_lfo2_to_detune3(int32_t v) {
+  LFO2toOSC3DETUNE = (int16_t)v;
+  serialSendParamByteToDCOFunction(PARAM_LFO2_TO_DETUNE3, (uint8_t)v);
 }
 
 // 17: osc sync mode, forward to DCO
@@ -385,6 +404,9 @@ static const ParamDescriptorT<int32_t> paramTable[] = {
     {PARAM_OSC2_INTERVAL, apply_param_osc2_interval},
     {PARAM_OSC2_DETUNE_VAL, apply_param_osc2_detune},
     {PARAM_LFO2_TO_DETUNE2, apply_param_lfo2_to_detune2},
+    {PARAM_OSC3_INTERVAL, apply_param_osc3_interval},
+    {PARAM_OSC3_DETUNE_VAL, apply_param_osc3_detune},
+    {PARAM_LFO2_TO_DETUNE3, apply_param_lfo2_to_detune3},
     {PARAM_OSC_SYNC_MODE, apply_param_osc_sync_mode},
     {PARAM_PORTAMENTO_TIME, apply_param_portamento_time},
 

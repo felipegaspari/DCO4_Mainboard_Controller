@@ -1,4 +1,7 @@
-#define NUM_VOICES 4
+#define NUM_VOICES 1
+// Monosynth: one MIDI/voice path. Hardware still has two filter CV channels
+// (paraphonic filter plan); unused cutoff/resonance outs are parked in PWM.ino.
+#define NUM_FILTERS 2
 
 // PINS reserved for SDMMC: PD2, PC12,PC8, PC9, PC10,PC11
 
@@ -26,15 +29,9 @@
 
 //#include "Screen.h"
 
-#include "flashData.h"
-
 #include "formulas.h"
 #include "tables.h"
 #include "waveSelector.h"
-
-#ifdef ENABLE_SPI
-#include "SPI_settings.h"
-#endif
 
 //#include "autotune.h"
 
@@ -77,6 +74,8 @@ void print_mainboard_loop_timings();
 byte OSC1Interval = 24;
 byte OSC2Interval = 24;
 uint16_t OSC2Detune = 255;
+byte OSC3Interval = 24;
+uint16_t OSC3Detune = 255;
 
 float DETUNE1;
 float DETUNE2;
@@ -120,18 +119,9 @@ void setup() {
   // init tables:
   generateBezierArray({ 0, 4095 }, { 4095, 0 }, { 150, 1420 }, { -235, 815 }, 4096, AS2164_VCA_linearize_table);
 
-  // ADSR Faders Table
-  for (int i = 0; i < LIN_TO_EXP_TABLE_SIZE; i++) {
-    linToExpLookup[i] = linearToExponential(i, 50, maxADSRControlValue);
-  }
-
   init_waveSelector();
 
   init_MCP4728();
-
-#ifdef ENABLE_SPI
-//init_BU2505FV();
-#endif
 
   //  initEEPROM();
 

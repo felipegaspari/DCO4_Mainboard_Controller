@@ -74,19 +74,16 @@ int8_t velocityToVCAVal = 0;
 int8_t velocityToPWMVal = 0;
 
 int16_t LFO1toDCOVal;
-int16_t LFO2toDCOVal;
-int16_t LFO3toDCOVal;
 
 int16_t LFO1toVCAVal;
 
 int16_t LFO1SpeedVal;
 int16_t LFO2SpeedVal;
-int16_t LFO3SpeedVal;
 
 int16_t LFO1toVCFVal;
 int16_t LFO2toVCFVal;
-int16_t LFO3toVCFVal;
 
+// DCO: 0=OSC1, 1=OSC2, 2=OSC1+OSC2, 3=OSC3, 4=all (forwarded; Mainboard has no OSC3 CV devices)
 int8_t ADSR3ToOscSelect;
 
 int16_t calibrationVal;

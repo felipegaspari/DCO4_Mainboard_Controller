@@ -13,33 +13,35 @@ void update_waveSelector(byte wave) {
   //if (saw2Status == 0) {
   //     Serial.println("entro al all on");
   //waveSelectorMux.allOff();
+  // Pin arrays still hold 4 voice slots (hardware map). Monosynth NUM_VOICES=1:
+  // only slot 0 follows status flags; unused slots are forced off (write 1).
   switch (wave) {
     case 0:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sawPins[i], !sawStatus);
+        waveSelectorMux.writePin(sawPins[i], (i < NUM_VOICES) ? !sawStatus : 1);
       }
       break;
     case 1:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(saw2Pins[i], !saw2Status);
+        waveSelectorMux.writePin(saw2Pins[i], (i < NUM_VOICES) ? !saw2Status : 1);
       }
       break;
     case 2:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(triPins[i], !triStatus);
+        waveSelectorMux.writePin(triPins[i], (i < NUM_VOICES) ? !triStatus : 1);
       }
       break;
     case 3:
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sinePins[i], !sqr2Status);
+        waveSelectorMux.writePin(sinePins[i], (i < NUM_VOICES) ? !sqr2Status : 1);
       }
       break;
     case 4:  // Update All
       for (int i = 0; i < 4; i++) {
-        waveSelectorMux.writePin(sawPins[i], !sawStatus);
-        waveSelectorMux.writePin(saw2Pins[i], !saw2Status);
-        waveSelectorMux.writePin(triPins[i], !triStatus);
-        waveSelectorMux.writePin(sinePins[i], !sqr2Status);
+        waveSelectorMux.writePin(sawPins[i], (i < NUM_VOICES) ? !sawStatus : 1);
+        waveSelectorMux.writePin(saw2Pins[i], (i < NUM_VOICES) ? !saw2Status : 1);
+        waveSelectorMux.writePin(triPins[i], (i < NUM_VOICES) ? !triStatus : 1);
+        waveSelectorMux.writePin(sinePins[i], (i < NUM_VOICES) ? !sqr2Status : 1);
       }
       break;
     default:

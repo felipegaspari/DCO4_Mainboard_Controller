@@ -78,23 +78,32 @@ inline void setPWMOuts() {
 
   // /* ***************************          PWM TIMING          *****************************/
 
-  // RESONANCE
+  // RESONANCE — monosynth uses NUM_FILTERS (2) independent filter CVs; park unused outs.
   htim4->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);  // RESO1
   htim8->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);  // RESO2
+#if NUM_FILTERS < 3
+  htim5->setCaptureCompare(1, 0, TICK_COMPARE_FORMAT);  // RESO3 (unused)
+  htim3->setCaptureCompare(1, 0, TICK_COMPARE_FORMAT);  // RESO4 (unused)
+#else
   htim5->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);  // RESO3
   htim3->setCaptureCompare(1, RESONANCE, TICK_COMPARE_FORMAT);  // RESO4
+#endif
 
-  // CUTOFF
+  // CUTOFF — both active filters follow voice-0 VCF (NUM_VOICES=1); park unused outs.
   htim12->setCaptureCompare(1, VCF_PWM[0], TICK_COMPARE_FORMAT);  // CUTOFF1
-  htim4->setCaptureCompare(3, VCF_PWM[1], TICK_COMPARE_FORMAT);   // CUTOFF2
-  htim15->setCaptureCompare(2, VCF_PWM[2], TICK_COMPARE_FORMAT);  // CUTOFF3
-  htim5->setCaptureCompare(3, VCF_PWM[3], TICK_COMPARE_FORMAT);   // CUTOFF4
+#if NUM_FILTERS >= 2
+  htim4->setCaptureCompare(3, VCF_PWM[0], TICK_COMPARE_FORMAT);   // CUTOFF2 (same mono VCF CV for now)
+#else
+  htim4->setCaptureCompare(3, 4095, TICK_COMPARE_FORMAT);   // CUTOFF2
+#endif
+  htim15->setCaptureCompare(2, 4095, TICK_COMPARE_FORMAT);  // CUTOFF3 (unused)
+  htim5->setCaptureCompare(3, 4095, TICK_COMPARE_FORMAT);   // CUTOFF4 (unused)
 
-  // VCA
-  htim3->setCaptureCompare(3, VCA_PWM[3], TICK_COMPARE_FORMAT);
-  htim13->setCaptureCompare(1, VCA_PWM[1], TICK_COMPARE_FORMAT);
+  // VCA — monosynth voice 0 only; park unused outs closed (4095).
+  htim3->setCaptureCompare(3, 4095, TICK_COMPARE_FORMAT);
+  htim13->setCaptureCompare(1, 4095, TICK_COMPARE_FORMAT);
   htim2->setCaptureCompare(3, VCA_PWM[0], TICK_COMPARE_FORMAT);
-  htim1->setCaptureCompare(4, VCA_PWM[2], TICK_COMPARE_FORMAT);
+  htim1->setCaptureCompare(4, 4095, TICK_COMPARE_FORMAT);
 
 
   if (timer1msFlag) {
@@ -106,6 +115,8 @@ inline void setPWMOuts() {
 }
 
 // Hot path (manual cal): force wave/SQR/VCA for manualCalibrationStage; update mux + DACs.
+// Monosynth: stage is oscillator index 0..2 (matches DCO). Voice is always 0.
+// OSC3 has no dedicated Mainboard wave/SQR hardware — only OSC1/OSC2 mux paths are driven.
 void setPWMOutsManualCalibration() {
 
   for (int i = 0; i < 4; i++) {
@@ -115,50 +126,58 @@ void setPWMOutsManualCalibration() {
         waveSelectorMux.writePin(sinePins[i], 1);
       }
 
-  uint8_t currentCalibrationOscillator = (uint8_t)manualCalibrationStage / 2;
-  uint8_t currentCalibrationVoice = (uint8_t)manualCalibrationStage  / 4;
+  // DCO4 encoding (kept for reference):
+  // uint8_t currentCalibrationOscillator = (uint8_t)manualCalibrationStage / 2;
+  // uint8_t currentCalibrationVoice = (uint8_t)manualCalibrationStage  / 4;
+  uint8_t currentCalibrationOscillator = (uint8_t)manualCalibrationStage;
+  if (currentCalibrationOscillator > 2) {
+    currentCalibrationOscillator = 2;
+  }
+  uint8_t currentCalibrationVoice = 0;
 
-  if (((uint8_t)manualCalibrationStage % 2) == 0) {
-    if ((currentCalibrationOscillator % 2) == 0) {
-      SQR1Level = 50;
-      SQR2Level = 4095;
-      waveSelectorMux.writePin(sawPins[currentCalibrationVoice], 0);
-    } else {
-      SQR1Level = 4095;
-      SQR2Level = 50;
-      waveSelectorMux.writePin(saw2Pins[currentCalibrationVoice], 0);
-    }
+  // Physical wave/SQR paths exist for OSC1/OSC2 only (no OSC3 devices on Mainboard).
+  // DCO4 even/odd stage wave alternation kept for reference:
+  // if (((uint8_t)manualCalibrationStage % 2) == 0) {
+  //   if ((currentCalibrationOscillator % 2) == 0) { SQR1... sawPins }
+  //   else { SQR2... saw2Pins }
+  // } else {
+  //   if ((currentCalibrationOscillator % 2) == 0) { SQR1... triPins }
+  //   else { SQR2... sinePins }
+  // }
+  if (currentCalibrationOscillator == 0) {
+    SQR1Level = 50;
+    SQR2Level = 4095;
+    waveSelectorMux.writePin(sawPins[currentCalibrationVoice], 0);
+  } else if (currentCalibrationOscillator == 1) {
+    SQR1Level = 4095;
+    SQR2Level = 50;
+    waveSelectorMux.writePin(saw2Pins[currentCalibrationVoice], 0);
   } else {
-    if ((currentCalibrationOscillator % 2) == 0) {
-      SQR1Level = 50;
-      SQR2Level = 4095;
-      waveSelectorMux.writePin(triPins[currentCalibrationVoice], 0);
-    } else {
-      SQR1Level = 4095;
-      SQR2Level = 50;
-      waveSelectorMux.writePin(sinePins[currentCalibrationVoice], 0);
-    }
+    // OSC3: no Mainboard wave mux / SQR DAC channel — keep SQR muted for panel safety.
+    SQR1Level = 4095;
+    SQR2Level = 4095;
   }
 
   uint16_t RESONANCE_manual_calibration = 0;
   uint16_t CUTOFF_manual_calibration = 0;
+  // Monosynth: only voice-0 VCA is opened for cal; unused outs stay closed.
   uint16_t VCA_manual_calibration[] = { 4095, 4095, 4095, 4095 };
 
   VCA_manual_calibration[currentCalibrationVoice] = 150;
 
-  // RESONANCE
+  // RESONANCE — drive NUM_FILTERS channels; park unused
   htim4->setCaptureCompare(1, RESONANCE_manual_calibration, TICK_COMPARE_FORMAT);  // RESO1
   htim8->setCaptureCompare(1, RESONANCE_manual_calibration, TICK_COMPARE_FORMAT);  // RESO2
-  htim5->setCaptureCompare(1, RESONANCE_manual_calibration, TICK_COMPARE_FORMAT);  // RESO3
-  htim3->setCaptureCompare(1, RESONANCE_manual_calibration, TICK_COMPARE_FORMAT);  // RESO4
+  htim5->setCaptureCompare(1, 0, TICK_COMPARE_FORMAT);  // RESO3 (unused)
+  htim3->setCaptureCompare(1, 0, TICK_COMPARE_FORMAT);  // RESO4 (unused)
 
 
 
-  // CUTOFF
+  // CUTOFF — both active filters; park unused
   htim12->setCaptureCompare(1, CUTOFF_manual_calibration, TICK_COMPARE_FORMAT);  // CUTOFF1
   htim4->setCaptureCompare(3, CUTOFF_manual_calibration, TICK_COMPARE_FORMAT);   // CUTOFF2
-  htim15->setCaptureCompare(2, CUTOFF_manual_calibration, TICK_COMPARE_FORMAT);  // CUTOFF3
-  htim5->setCaptureCompare(3, CUTOFF_manual_calibration, TICK_COMPARE_FORMAT);   // CUTOFF4
+  htim15->setCaptureCompare(2, 4095, TICK_COMPARE_FORMAT);  // CUTOFF3 (unused)
+  htim5->setCaptureCompare(3, 4095, TICK_COMPARE_FORMAT);   // CUTOFF4 (unused)
 
   // VCA
 
