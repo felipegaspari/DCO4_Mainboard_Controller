@@ -56,6 +56,7 @@ PWM outputs:         3.85
 sendSerial():        0.25
 */
 
+#define RUNNING_AVERAGE
 #ifdef RUNNING_AVERAGE
 #include "RunningAverage.h"
 
@@ -141,12 +142,18 @@ void setup() {
   Serial.begin(2000000);
 #endif
 #ifdef ENABLE_SERIAL1
+  Serial1.setRx(MB_SERIAL1_RX);
+  Serial1.setTx(MB_SERIAL1_TX);
   Serial1.begin(2500000);
 #endif
 #ifdef ENABLE_SERIAL2
+  Serial2.setRx(MB_SERIAL2_RX);
+  Serial2.setTx(MB_SERIAL2_TX);
   Serial2.begin(2500000);
 #endif
 #ifdef ENABLE_SERIAL8
+  Serial8.setRx(MB_SERIAL8_RX);
+  Serial8.setTx(MB_SERIAL8_TX);
   Serial8.begin(2500000);
 #endif
 

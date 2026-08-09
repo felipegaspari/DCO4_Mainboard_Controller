@@ -11,17 +11,15 @@
 #define ENABLE_SERIAL2
 #define ENABLE_SERIAL8
 
-#ifdef ENABLE_SERIAL1
-HardwareSerial Serial1(PA10, PA9); // TO SCREEN CONTROLLER
-#endif
-
-#ifdef ENABLE_SERIAL2
-HardwareSerial Serial2(PD6, PD5); // TO DCO
-#endif
-
-#ifdef ENABLE_SERIAL8
-HardwareSerial Serial8(PE0, PE1); // TO INPUT BOARD
-#endif
+// STM32 Arduino core 3.x already instantiates Uart Serial1/2/8 (see core Serial.cpp).
+// Do not construct HardwareSerial SerialN(...) here — that clashes with `extern Uart SerialN`.
+// Remap pins with setRx/setTx before begin() in setup().
+#define MB_SERIAL1_RX PA10  // Screen
+#define MB_SERIAL1_TX PA9
+#define MB_SERIAL2_RX PD6   // DCO
+#define MB_SERIAL2_TX PD5
+#define MB_SERIAL8_RX PE0   // Input
+#define MB_SERIAL8_TX PE1
 
 float freq;
 
