@@ -13,7 +13,7 @@ Hardware mapping for **DCO4_Mainboard_Controller** (STM32). Signal routing comes
 | `Serial2` | PD6 / PD5 | 2 500 000 | DCO |
 | `Serial8` | PE0 / PE1 | 2 500 000 | Input |
 
-Pins are documented as `MB_SERIALn_*` in `Serial.h`. STM32 core 3.x already provides `Uart Serial1/2/8`; `setup()` remaps RX/TX with `setRx`/`setTx` then `begin()`. Do not construct `HardwareSerial SerialN(...)` (conflicts with core `extern Uart SerialN`).
+Pins and `Uart Serial1/2/8` objects are in `Serial.h` (core 3.x `extern Uart`, not `HardwareSerial`). `setup()` still calls `setRx`/`setTx` then `begin()`.
 
 ---
 

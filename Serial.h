@@ -6,20 +6,31 @@
 #include "serial_input_protocol.h"
 #include "serial_parser.h"
 
+// Sketch-local compile switches for begin()/RX paths.
 #define ENABLE_SERIAL
 #define ENABLE_SERIAL1
 #define ENABLE_SERIAL2
 #define ENABLE_SERIAL8
 
-// STM32 Arduino core 3.x already instantiates Uart Serial1/2/8 (see core Serial.cpp).
-// Do not construct HardwareSerial SerialN(...) here — that clashes with `extern Uart SerialN`.
-// Remap pins with setRx/setTx before begin() in setup().
+// STM32 core 3.x declares `extern Uart SerialN` but only *defines* them if
+// ENABLE_HWSERIALn reaches core Serial.cpp (often cached, so build_opt.h is
+// unreliable). Provide the objects here as Uart (not HardwareSerial).
 #define MB_SERIAL1_RX PA10  // Screen
 #define MB_SERIAL1_TX PA9
 #define MB_SERIAL2_RX PD6   // DCO
 #define MB_SERIAL2_TX PD5
 #define MB_SERIAL8_RX PE0   // Input
 #define MB_SERIAL8_TX PE1
+
+#ifdef ENABLE_SERIAL1
+Uart Serial1(MB_SERIAL1_RX, MB_SERIAL1_TX);
+#endif
+#ifdef ENABLE_SERIAL2
+Uart Serial2(MB_SERIAL2_RX, MB_SERIAL2_TX);
+#endif
+#ifdef ENABLE_SERIAL8
+Uart Serial8(MB_SERIAL8_RX, MB_SERIAL8_TX);
+#endif
 
 float freq;
 
