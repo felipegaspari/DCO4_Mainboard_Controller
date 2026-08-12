@@ -1,4 +1,12 @@
-# DCO3-MONOSYNTH – Mainboard Controller (STM32)
+# DCO3-MONOSYNTH – Mainboard Controller (STM32) — ARCHIVED
+
+> **Archived (absorption Phase 5).** This STM32 board is **not part of the shipping monosynth topology**. Modulation (ADSRs, LFOs, filter/VCA CVs, wave mux, MCP4728) and serial hub duties live on the **DCO (Pico 2)**.
+>
+> - Live overview: [`../../DCO/docs/SYSTEM_OVERVIEW.md`](../../DCO/docs/SYSTEM_OVERVIEW.md)
+> - How it was absorbed: [`../../DCO/docs/MAINBOARD_ABSORPTION.md`](../../DCO/docs/MAINBOARD_ABSORPTION.md)
+> - Parent pointer: [`../README.md`](../README.md)
+>
+> To bench the old 4-board stack against this firmware, build DCO with `#define ENABLE_LEGACY_MAINBOARD_LINK` (disables Input/Screen hub defaults).
 
 Firmware for the **Mainboard** of DCO3-MONOSYNTH: the STM32 modulation brain that owns **ADSRs**, **LFOs**, **filter/VCA/resonance CVs** (timer PWM), **square/sub levels** (MCP4728), **analog wave select** (74HC595), and **parameter routing** between the DCO voice board, input controller, and screen.
 
@@ -6,7 +14,7 @@ Based on DCO4 Mainboard, retargeted for **1 voice × 3 oscillators** on the DCO 
 
 Single-threaded `setup()` / `loop()` (not dual-core).
 
-How this board fits the instrument: canonical overview in [`../DCO/docs/SYSTEM_OVERVIEW.md`](../DCO/docs/SYSTEM_OVERVIEW.md); local UART stub in [`docs/SYSTEM_OVERVIEW.md`](docs/SYSTEM_OVERVIEW.md).
+How this board fits the instrument: canonical overview in [`../../DCO/docs/SYSTEM_OVERVIEW.md`](../../DCO/docs/SYSTEM_OVERVIEW.md); local UART stub in [`docs/SYSTEM_OVERVIEW.md`](docs/SYSTEM_OVERVIEW.md).
 
 ## Target model
 
